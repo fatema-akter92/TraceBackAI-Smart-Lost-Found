@@ -1,4 +1,4 @@
-# 🔍 TraceBack AI — Smart Lost & Found Recovery Network
+# TraceBack AI — Smart Lost & Found Recovery Network
 ##### "More Than Lost & Found — A Smarter Way to Recover."
 
 [![Django Version](https://img.shields.io/badge/Django-5.0.0-092E20?style=for-the-badge&logo=django&logoColor=white)](https://www.djangoproject.com/)
