@@ -1,0 +1,477 @@
+{% extends 'base.html' %}
+
+{% block title %}DIU Campus Interactive Recovery Map | TraceBack AI{% endblock %}
+
+{% block extra_head %}
+<!-- Leaflet CSS & JS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+    #recovery-map {
+        height: 640px;
+        width: 100%;
+        border-radius: 1.5rem;
+        background: #f8fafc;
+    }
+    .custom-pulse-pin {
+        border-radius: 50%;
+        animation: pin-pulse 2s infinite;
+    }
+    @keyframes pin-pulse {
+        0% { box-shadow: 0 0 0 0 rgba(8, 145, 178, 0.7); }
+        70% { box-shadow: 0 0 0 12px rgba(8, 145, 178, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(8, 145, 178, 0); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+    
+    <!-- Header with DIU Campus Badge & Google Maps Direct Verify -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <div class="flex items-center gap-2">
+                <span class="px-2.5 py-0.5 rounded-full bg-cyan-100 text-cyan-800 text-xs font-bold uppercase tracking-wider">
+                    <i class="fas fa-university text-cyan-600 mr-1"></i> Daffodil International University (DIU)
+                </span>
+                <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold">
+                    Daffodil Smart City, Ashulia
+                </span>
+                <span class="text-[11px] text-slate-400 font-mono hidden sm:inline">
+                    23.87887° N, 90.32255° E
+                </span>
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1">Interactive Campus Recovery Map</h1>
+            <p class="text-xs sm:text-sm text-slate-500 mt-1">
+                Pinpoint lost and found belongings accurately positioned on Google Maps &amp; DIU Campus GPS coordinates.
+            </p>
+        </div>
+
+        <!-- Filter Controls & Google Maps Direct Link -->
+        <div class="flex flex-wrap items-center gap-2">
+            <div class="flex items-center gap-1.5 bg-white p-1.5 rounded-2xl border border-slate-200 shadow-xs">
+                <button onclick="filterMap('all')" id="btn-filter-all" class="px-3 py-1.5 text-xs font-bold rounded-xl bg-cyan-600 text-white transition shadow-xs">
+                    All ({{ total_items }})
+                </button>
+                <button onclick="filterMap('lost')" id="btn-filter-lost" class="px-3 py-1.5 text-xs font-semibold rounded-xl bg-slate-100 text-slate-700 hover:bg-rose-50 hover:text-rose-700 transition">
+                    <i class="fas fa-exclamation-circle text-rose-500 mr-1"></i> Lost Items
+                </button>
+                <button onclick="filterMap('found')" id="btn-filter-found" class="px-3 py-1.5 text-xs font-semibold rounded-xl bg-slate-100 text-slate-700 hover:bg-cyan-50 hover:text-cyan-700 transition">
+                    <i class="fas fa-hand-holding-heart text-cyan-600 mr-1"></i> Found Items
+                </button>
+            </div>
+
+            <!-- Direct Google Maps Verification Button -->
+            <a href="https://www.google.com/maps/place/Daffodil+International+University/@23.87887,90.32255,17z" target="_blank" class="px-3.5 py-2 text-xs font-bold rounded-2xl bg-white border border-slate-300 text-slate-700 hover:border-cyan-600 hover:text-cyan-700 transition shadow-xs flex items-center gap-1.5" title="Verify campus location on Google Maps">
+                <i class="fab fa-google text-cyan-600"></i>
+                <span>Open in Google Maps ↗</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- DIU Campus Quick Location-Based Zone Navigation Bar -->
+    <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-2 overflow-x-auto text-xs">
+        <span class="text-slate-400 font-bold text-[11px] uppercase tracking-wider shrink-0 mr-1">
+            <i class="fas fa-map-pin text-cyan-600 mr-1"></i> DIU Zones:
+        </span>
+        <button onclick="flyToDIUZone(23.87887, 90.32255, 17)" class="px-3 py-1.5 rounded-xl bg-cyan-50 text-cyan-800 hover:bg-cyan-100 font-bold shrink-0 transition flex items-center gap-1.5">
+            <i class="fas fa-university text-cyan-600"></i> Main Campus (Smart City)
+        </button>
+        <button onclick="flyToDIUZone(23.87840, 90.32210, 18)" class="px-3 py-1.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-cyan-50 hover:text-cyan-700 font-semibold shrink-0 transition flex items-center gap-1.5">
+            <i class="fas fa-book-reader text-cyan-600"></i> Central Library (2nd/3rd Floor)
+        </button>
+        <button onclick="flyToDIUZone(23.87831, 90.32205, 18)" class="px-3 py-1.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-cyan-50 hover:text-cyan-700 font-semibold shrink-0 transition flex items-center gap-1.5">
+            <i class="fas fa-laptop-code text-cyan-600"></i> Academic Complex AB 1-4
+        </button>
+        <button onclick="flyToDIUZone(23.87684, 90.31998, 18)" class="px-3 py-1.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-cyan-50 hover:text-cyan-700 font-semibold shrink-0 transition flex items-center gap-1.5">
+            <i class="fas fa-building text-cyan-600"></i> Knowledge Tower (Admin)
+        </button>
+        <button onclick="flyToDIUZone(23.87513, 90.32144, 18)" class="px-3 py-1.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-cyan-50 hover:text-cyan-700 font-semibold shrink-0 transition flex items-center gap-1.5">
+            <i class="fas fa-utensils text-cyan-600"></i> Central Cafeteria &amp; Dining
+        </button>
+        <button onclick="flyToDIUZone(23.87595, 90.32298, 18)" class="px-3 py-1.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-cyan-50 hover:text-cyan-700 font-semibold shrink-0 transition flex items-center gap-1.5">
+            <i class="fas fa-water text-cyan-600"></i> Daffodil Lake &amp; Savora
+        </button>
+        <button onclick="flyToDIUZone(23.87557, 90.32108, 18)" class="px-3 py-1.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-cyan-50 hover:text-cyan-700 font-semibold shrink-0 transition flex items-center gap-1.5">
+            <i class="fas fa-basketball-ball text-cyan-600"></i> Basketball &amp; Sports Ground
+        </button>
+        <button onclick="flyToDIUZone(23.87546, 90.32183, 18)" class="px-3 py-1.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-cyan-50 hover:text-cyan-700 font-semibold shrink-0 transition flex items-center gap-1.5">
+            <i class="fas fa-bus-alt text-cyan-600"></i> Shuttle Stand (Gate 1)
+        </button>
+        <button onclick="flyToDIUZone(23.87570, 90.32050, 18)" class="px-3 py-1.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-cyan-50 hover:text-cyan-700 font-semibold shrink-0 transition flex items-center gap-1.5">
+            <i class="fas fa-motorcycle text-cyan-600"></i> Parking Bay
+        </button>
+    </div>
+
+    <!-- Map Canvas Card -->
+    <div class="relative bg-white rounded-3xl p-3 border border-slate-200 shadow-md">
+        
+        <!-- Leaflet Map Container -->
+        <div id="recovery-map" class="z-10 shadow-inner"></div>
+
+        <!-- Floating Map Style / Layer Switcher (Google Maps Street, Google Satellite Hybrid, OpenStreetMap) -->
+        <div class="absolute top-6 right-6 z-20 bg-white/95 backdrop-blur-md p-1.5 rounded-2xl border border-slate-200 shadow-lg flex items-center gap-1 text-xs">
+            <button type="button" onclick="setBaseLayer('google_street')" id="btn-layer-google-street" class="px-3 py-1.5 font-bold rounded-xl bg-cyan-600 text-white transition flex items-center gap-1">
+                <i class="fab fa-google"></i> Google Map
+            </button>
+            <button type="button" onclick="setBaseLayer('google_sat')" id="btn-layer-google-sat" class="px-3 py-1.5 font-semibold rounded-xl text-slate-700 hover:bg-slate-100 transition flex items-center gap-1">
+                <i class="fas fa-satellite"></i> Google Satellite
+            </button>
+            <button type="button" onclick="setBaseLayer('osm')" id="btn-layer-osm" class="px-3 py-1.5 font-semibold rounded-xl text-slate-700 hover:bg-slate-100 transition flex items-center gap-1">
+                <i class="fas fa-map"></i> OpenStreetMap
+            </button>
+        </div>
+
+        <!-- Floating Map Legend Overlay -->
+        <div class="absolute bottom-6 right-6 z-20 bg-white/95 backdrop-blur-md px-4 py-3.5 rounded-2xl border border-slate-200 shadow-lg text-xs space-y-2">
+            <div class="font-bold text-slate-800 text-[11px] uppercase tracking-wider mb-1 flex items-center justify-between gap-4">
+                <span>DIU Campus Pins</span>
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="w-3.5 h-3.5 rounded-full bg-rose-600 border border-white shadow-xs"></span>
+                <span class="text-slate-600">Student Lost Belonging</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="w-3.5 h-3.5 rounded-full bg-cyan-600 border border-white shadow-xs"></span>
+                <span class="text-slate-600">Found Item / In Custody</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="w-3.5 h-3.5 rounded-lg bg-cyan-700 border border-white flex items-center justify-center text-[10px] text-white">
+                    <i class="fas fa-university"></i>
+                </span>
+                <span class="text-slate-600">Official DIU Building</span>
+            </div>
+            <div class="text-[10px] text-slate-400 pt-1.5 border-t border-slate-100 flex items-center justify-between gap-2">
+                <span><i class="fab fa-google text-cyan-600 mr-1"></i> Google Maps Coordinates</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- DIU Campus Landmark Highlights Banner -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex items-start gap-3">
+            <div class="w-10 h-10 rounded-xl bg-cyan-100 text-cyan-700 flex items-center justify-center text-base shrink-0">
+                <i class="fas fa-book-reader"></i>
+            </div>
+            <div>
+                <h4 class="font-bold text-xs text-slate-900">DIU Central Library</h4>
+                <p class="text-[11px] text-slate-500">Academic Complex 2nd &amp; 3rd Floor study desks, reading halls</p>
+                <a href="https://www.google.com/maps?q=23.878400,90.322100" target="_blank" class="text-[10px] text-cyan-600 font-bold hover:underline mt-1 inline-block">
+                    Verify in Google Maps &rarr;
+                </a>
+            </div>
+        </div>
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex items-start gap-3">
+            <div class="w-10 h-10 rounded-xl bg-cyan-100 text-cyan-700 flex items-center justify-center text-base shrink-0">
+                <i class="fas fa-laptop-code"></i>
+            </div>
+            <div>
+                <h4 class="font-bold text-xs text-slate-900">Academic Complex AB 1-4</h4>
+                <p class="text-[11px] text-slate-500">CSE, EEE, Software Engineering labs and lecture halls</p>
+                <a href="https://www.google.com/maps?q=23.878315,90.322056" target="_blank" class="text-[10px] text-cyan-600 font-bold hover:underline mt-1 inline-block">
+                    Verify in Google Maps &rarr;
+                </a>
+            </div>
+        </div>
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex items-start gap-3">
+            <div class="w-10 h-10 rounded-xl bg-cyan-100 text-cyan-700 flex items-center justify-center text-base shrink-0">
+                <i class="fas fa-building"></i>
+            </div>
+            <div>
+                <h4 class="font-bold text-xs text-slate-900">Knowledge Tower</h4>
+                <p class="text-[11px] text-slate-500">Administrative headquarters, admission center &amp; executive offices</p>
+                <a href="https://www.google.com/maps?q=23.876841,90.319979" target="_blank" class="text-[10px] text-cyan-600 font-bold hover:underline mt-1 inline-block">
+                    Verify in Google Maps &rarr;
+                </a>
+            </div>
+        </div>
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex items-start gap-3">
+            <div class="w-10 h-10 rounded-xl bg-cyan-100 text-cyan-700 flex items-center justify-center text-base shrink-0">
+                <i class="fas fa-utensils"></i>
+            </div>
+            <div>
+                <h4 class="font-bold text-xs text-slate-900">DIU Cafeteria &amp; Commons</h4>
+                <p class="text-[11px] text-slate-500">Central food court, indoor dining and student pavilion</p>
+                <a href="https://www.google.com/maps?q=23.875130,90.321442" target="_blank" class="text-[10px] text-cyan-600 font-bold hover:underline mt-1 inline-block">
+                    Verify in Google Maps &rarr;
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    const pinsData = {{ pins_json|safe }};
+    let map;
+    let markersLayer;
+    let buildingsLayer;
+    let googleStreetLayer;
+    let googleSatLayer;
+    let osmLayer;
+
+    // Official Google Maps & OpenStreetMap GPS Verified Coordinates for DIU Daffodil Smart City
+    const DIU_MAIN_LAT = 23.87887;
+    const DIU_MAIN_LNG = 90.32255;
+
+    const diuCampusZones = [
+        {
+            name: "Daffodil Smart City (Main Center)",
+            lat: 23.878870,
+            lng: 90.322550,
+            icon: "fa-university",
+            desc: "Daffodil International University central landmark pin on Google Maps."
+        },
+        {
+            name: "DIU Central Library & Study Commons",
+            lat: 23.878400,
+            lng: 90.322100,
+            icon: "fa-book-reader",
+            desc: "2nd & 3rd Floor study desks, reading halls, and official Lost & Found Desk."
+        },
+        {
+            name: "Academic Complex (AB 1-4 & CSE Labs)",
+            lat: 23.878315,
+            lng: 90.322056,
+            icon: "fa-laptop-code",
+            desc: "Computer Science, Software Engineering labs, and lecture galleries."
+        },
+        {
+            name: "Knowledge Tower & Admin Building",
+            lat: 23.876841,
+            lng: 90.319979,
+            icon: "fa-building",
+            desc: "Administrative Headquarters, Dean offices, and student affairs."
+        },
+        {
+            name: "DIU Central Cafeteria & Food Court",
+            lat: 23.875130,
+            lng: 90.321442,
+            icon: "fa-utensils",
+            desc: "Main student canteen, indoor dining hall, and refreshment counters."
+        },
+        {
+            name: "Daffodil Lake & Savora Lakeside Pavilion",
+            lat: 23.875953,
+            lng: 90.322986,
+            icon: "fa-water",
+            desc: "Scenic lakeside walkway, student kiosks, and open recreation."
+        },
+        {
+            name: "DIU Sports Ground & Basketball Arena",
+            lat: 23.875576,
+            lng: 90.321080,
+            icon: "fa-basketball-ball",
+            desc: "Basketball pitch, central sports field, and student pavilion."
+        },
+        {
+            name: "DIU Transport Depot & Bus Bay (Gate 1)",
+            lat: 23.875467,
+            lng: 90.321835,
+            icon: "fa-bus-alt",
+            desc: "Main campus entrance gate on Khagan Road and student shuttle bay."
+        },
+        {
+            name: "Student Motorcycle & Bicycle Parking Bay",
+            lat: 23.875700,
+            lng: 90.320500,
+            icon: "fa-motorcycle",
+            desc: "Student two-wheeler parking lot inside Main Gate 1."
+        }
+    ];
+
+    function initMap() {
+        // Center directly on Daffodil International University (Google Maps verified: 23.87887, 90.32255)
+        map = L.map('recovery-map', {
+            center: [DIU_MAIN_LAT, DIU_MAIN_LNG],
+            zoom: 17,
+            minZoom: 14,
+            maxZoom: 20
+        });
+
+        // 1. Google Maps Official Roadmap Layer (Default)
+        googleStreetLayer = L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+            maxZoom: 20,
+            attribution: 'Map data &copy; <a href="https://maps.google.com" target="_blank">Google Maps</a>'
+        }).addTo(map);
+
+        // 2. Google Maps Satellite Hybrid (Satellite Imagery + Roads & Labels)
+        googleSatLayer = L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
+            maxZoom: 20,
+            attribution: 'Imagery &copy; <a href="https://maps.google.com" target="_blank">Google Maps</a>'
+        });
+
+        // 3. OpenStreetMap Layer (Community Campus Plan)
+        osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            subdomains: ['a', 'b', 'c'],
+            attribution: '&copy; OpenStreetMap contributors'
+        });
+
+        // DIU Campus Boundary Highlight (450m radius around Google Maps DIU center)
+        L.circle([DIU_MAIN_LAT, DIU_MAIN_LNG], {
+            radius: 450,
+            color: '#0891b2',
+            fillColor: '#06b6d4',
+            fillOpacity: 0.08,
+            weight: 2,
+            dashArray: '5, 8'
+        }).addTo(map).bindPopup(`
+            <div style="padding: 4px; font-family: 'Inter', sans-serif;">
+                <b style="color: #0e7490;">Daffodil International University (DIU)</b><br>
+                <span style="font-size: 11px; color: #64748b;">Daffodil Smart City, Birulia, Savar / Ashulia</span><br>
+                <a href="https://www.google.com/maps/place/Daffodil+International+University/@23.87887,90.32255,17z" target="_blank" style="color: #0891b2; font-size: 11px; font-weight: 700; text-decoration: underline;">
+                    Open in Google Maps &rarr;
+                </a>
+            </div>
+        `);
+
+        // Layers for markers
+        buildingsLayer = L.layerGroup().addTo(map);
+        markersLayer = L.layerGroup().addTo(map);
+
+        // Render DIU Campus Buildings
+        renderDIUBuildings();
+
+        // Render Reported Items
+        renderMarkers('all');
+
+        // Prevent Leaflet grey-box / viewport timing glitch
+        setTimeout(() => {
+            map.invalidateSize();
+        }, 200);
+    }
+
+    function renderDIUBuildings() {
+        diuCampusZones.forEach(zone => {
+            const buildingIcon = L.divIcon({
+                className: 'custom-building-marker',
+                html: `
+                    <div style="background-color: #0e7490; color: #ffffff; width: 30px; height: 30px; border-radius: 9px; display: flex; align-items: center; justify-content: center; box-shadow: 0 3px 8px rgba(0,0,0,0.35); border: 2px solid #ffffff;">
+                        <i class="fas ${zone.icon}" style="font-size: 13px;"></i>
+                    </div>
+                `,
+                iconSize: [30, 30],
+                iconAnchor: [15, 15]
+            });
+
+            const marker = L.marker([zone.lat, zone.lng], { icon: buildingIcon });
+            marker.bindPopup(`
+                <div style="padding: 6px; min-width: 200px; font-family: 'Inter', sans-serif;">
+                    <span style="font-size: 10px; font-weight: 800; color: #0891b2; text-transform: uppercase;">Official DIU Landmark</span>
+                    <h4 style="font-weight: 700; font-size: 13px; color: #0f172a; margin: 2px 0;">${zone.name}</h4>
+                    <p style="font-size: 11px; color: #64748b; margin: 0 0 6px 0;">${zone.desc}</p>
+                    <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #f1f5f9; padding-top: 6px;">
+                        <span style="font-size: 10px; background: #ecfeff; color: #0e7490; padding: 2px 6px; border-radius: 4px; font-weight: 600;">Active Recovery Zone</span>
+                        <a href="https://www.google.com/maps?q=${zone.lat},${zone.lng}" target="_blank" style="font-size: 10px; color: #0891b2; font-weight: 700; text-decoration: none;">
+                            <i class="fab fa-google"></i> Google Maps ↗
+                        </a>
+                    </div>
+                </div>
+            `);
+            buildingsLayer.addLayer(marker);
+        });
+    }
+
+    function renderMarkers(typeFilter) {
+        markersLayer.clearLayers();
+
+        pinsData.forEach(item => {
+            if (typeFilter !== 'all' && item.type !== typeFilter) {
+                return;
+            }
+
+            const isLost = item.type === 'lost';
+            const pinColor = isLost ? '#e11d48' : '#0891b2';
+
+            const marker = L.circleMarker([item.lat, item.lng], {
+                radius: 9,
+                fillColor: pinColor,
+                color: "#ffffff",
+                weight: 2.5,
+                opacity: 1,
+                fillOpacity: 0.95
+            });
+
+            const popupHtml = `
+                <div style="padding: 6px; min-width: 220px; font-family: 'Inter', sans-serif;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+                        <span style="padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: 800; text-transform: uppercase; ${isLost ? 'background: #ffe4e6; color: #be123c;' : 'background: #cffafe; color: #0e7490;'}">
+                            ${item.type.toUpperCase()}
+                        </span>
+                        <span style="font-size: 10px; color: #94a3b8;">${item.date}</span>
+                    </div>
+                    <h4 style="font-weight: 700; font-size: 13px; color: #0f172a; margin: 2px 0 4px 0;">${item.title}</h4>
+                    <p style="font-size: 11px; color: #475569; margin: 0 0 6px 0;">
+                        <i class="fas fa-map-marker-alt" style="color: #0891b2;"></i> ${item.location_name}
+                    </p>
+                    <div style="display: flex; gap: 4px; margin-top: 6px;">
+                        <a href="${item.detail_url}" style="flex: 1; text-align: center; padding: 6px 8px; background: #0891b2; color: #ffffff; border-radius: 8px; font-size: 11px; font-weight: 700; text-decoration: none;">
+                            View Details &rarr;
+                        </a>
+                        <a href="https://www.google.com/maps?q=${item.lat},${item.lng}" target="_blank" style="padding: 6px 8px; background: #f8fafc; border: 1px solid #cbd5e1; color: #334155; border-radius: 8px; font-size: 11px; font-weight: 600; text-decoration: none;" title="Open in Google Maps">
+                            <i class="fab fa-google text-cyan-600"></i>
+                        </a>
+                    </div>
+                </div>
+            `;
+
+            marker.bindPopup(popupHtml);
+            markersLayer.addLayer(marker);
+        });
+    }
+
+    function filterMap(type) {
+        ['all', 'lost', 'found'].forEach(t => {
+            const btn = document.getElementById('btn-filter-' + t);
+            if (btn) {
+                if (t === type) {
+                    btn.className = "px-3 py-1.5 text-xs font-bold rounded-xl bg-cyan-600 text-white transition shadow-xs";
+                } else {
+                    btn.className = "px-3 py-1.5 text-xs font-semibold rounded-xl bg-slate-100 text-slate-700 hover:bg-cyan-50 transition";
+                }
+            }
+        });
+
+        renderMarkers(type);
+    }
+
+    function flyToDIUZone(lat, lng, zoomLevel) {
+        if (map) {
+            map.flyTo([lat, lng], zoomLevel, { duration: 1.2 });
+        }
+    }
+
+    function setBaseLayer(layerType) {
+        const btnGoogleStreet = document.getElementById('btn-layer-google-street');
+        const btnGoogleSat = document.getElementById('btn-layer-google-sat');
+        const btnOsm = document.getElementById('btn-layer-osm');
+
+        // Remove active layer
+        [googleStreetLayer, googleSatLayer, osmLayer].forEach(l => {
+            if (map.hasLayer(l)) map.removeLayer(l);
+        });
+
+        // Reset all button styles
+        [btnGoogleStreet, btnGoogleSat, btnOsm].forEach(b => {
+            b.className = "px-3 py-1.5 font-semibold rounded-xl text-slate-700 hover:bg-slate-100 transition flex items-center gap-1";
+        });
+
+        if (layerType === 'google_sat') {
+            googleSatLayer.addTo(map);
+            btnGoogleSat.className = "px-3 py-1.5 font-bold rounded-xl bg-cyan-600 text-white transition shadow-xs flex items-center gap-1";
+        } else if (layerType === 'osm') {
+            osmLayer.addTo(map);
+            btnOsm.className = "px-3 py-1.5 font-bold rounded-xl bg-cyan-600 text-white transition shadow-xs flex items-center gap-1";
+        } else {
+            googleStreetLayer.addTo(map);
+            btnGoogleStreet.className = "px-3 py-1.5 font-bold rounded-xl bg-cyan-600 text-white transition shadow-xs flex items-center gap-1";
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', initMap);
+</script>
+{% endblock %}
