@@ -132,5 +132,5 @@ Distributed under the **MIT License**. See `LICENSE` for more information.
 
 <div align="center">
   <b>Developed for Daffodil International University (DIU) Smart City &amp; Campus Recovery Network</b><br>
-  <sub>Powered by Django 5 &bull; Leaflet.js &bull; Google Maps &bull; Tailwind CSS</sub>
+  <sub>Developed by Fatema </sub>
 </div>
