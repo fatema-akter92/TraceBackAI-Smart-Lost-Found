@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+
+{% block title %}Explore Lost & Found Items | TraceBack BD{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+    
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900">Explore Reported Items</h1>
+            <p class="text-xs sm:text-sm text-slate-500 mt-1">
+                Browse through lost and found belongings across universities and public transit lines.
+            </p>
+        </div>
+
+        <div class="flex items-center gap-2">
+            <a href="{% url 'report_lost' %}" class="px-4 py-2 bg-rose-50 text-rose-700 border border-rose-200 rounded-xl text-xs font-bold hover:bg-rose-100 transition shadow-xs">
+                <i class="fas fa-plus-circle mr-1"></i> Report Lost
+            </a>
+            <a href="{% url 'report_found' %}" class="px-4 py-2 bg-cyan-600 text-white rounded-xl text-xs font-bold hover:bg-cyan-700 transition shadow-xs">
+                <i class="fas fa-hand-holding-heart mr-1"></i> Report Found
+            </a>
+        </div>
+    </div>
+
+    <!-- Filter & Search Toolbar -->
+    <div class="bg-white p-4 rounded-3xl border border-slate-200 shadow-sm">
+        <form method="GET" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+            <!-- Keyword search -->
+            <div class="lg:col-span-2 relative">
+                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
+                    <i class="fas fa-search text-xs text-cyan-600"></i>
+                </span>
+                <input type="text" name="q" value="{{ selected_query }}" placeholder="Search by item, brand, DIU, Mirpur..." class="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:border-cyan-500">
+            </div>
+
+            <!-- Report Type filter -->
+            <div>
+                <select name="type" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:border-cyan-500">
+                    <option value="">All Types (Lost &amp; Found)</option>
+                    <option value="lost" {% if selected_type == 'lost' %}selected{% endif %}>Lost Items Only</option>
+                    <option value="found" {% if selected_type == 'found' %}selected{% endif %}>Found Items Only</option>
+                </select>
+            </div>
+
+            <!-- Category filter -->
+            <div>
+                <select name="category" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:border-cyan-500">
+                    <option value="">All Categories</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat.id }}" {% if selected_category == cat.id|stringformat:"i" %}selected{% endif %}>{{ cat.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Submit button & reset -->
+            <div class="flex items-center gap-2">
+                <button type="submit" class="flex-1 py-2 px-3 bg-cyan-600 text-white text-xs font-bold rounded-xl hover:bg-cyan-700 transition shadow-xs">
+                    Filter Results
+                </button>
+                <a href="{% url 'item_list' %}" class="py-2 px-3 bg-slate-100 text-slate-600 text-xs font-semibold rounded-xl hover:bg-slate-200 transition" title="Reset Filters">
+                    <i class="fas fa-undo"></i>
+                </a>
+            </div>
+        </form>
+
+        <!-- Secondary quick toggles -->
+        <div class="flex items-center gap-2 mt-3 pt-3 border-t border-slate-100 text-xs flex-wrap">
+            <span class="text-slate-400 font-semibold text-[11px]">Filters:</span>
+            <a href="{% url 'item_list' %}?transit=1" class="px-2.5 py-1 rounded-lg border {% if selected_transit == '1' %}bg-cyan-600 text-white border-cyan-600{% else %}bg-slate-50 text-slate-700 border-slate-200 hover:bg-cyan-50{% endif %} text-[11px] transition">
+                <i class="fas fa-bus-alt mr-1"></i> JourneyTrace™ (Transit Only)
+            </a>
+            <a href="{% url 'item_list' %}?status=recovered" class="px-2.5 py-1 rounded-lg border {% if selected_status == 'recovered' %}bg-emerald-600 text-white border-emerald-600{% else %}bg-slate-50 text-slate-700 border-slate-200 hover:bg-emerald-50{% endif %} text-[11px] transition">
+                <i class="fas fa-check-circle mr-1"></i> Successfully Recovered Items
+            </a>
+        </div>
+    </div>
+
+    <!-- Items Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {% for item in items %}
+        <div class="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xs hover:shadow-md hover:border-cyan-400 transition flex flex-col justify-between group">
+            <div>
+                <!-- Image or placeholder -->
+                <div class="w-full h-44 bg-slate-100 relative overflow-hidden flex items-center justify-center">
+                    {% if item.image %}
+                    <img src="{{ item.display_image_url }}" alt="{{ item.title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                    {% else %}
+                    <i class="{{ item.category.icon }} text-4xl text-cyan-600/50"></i>
+                    {% endif %}
+
+                    <!-- Pill badge -->
+                    <span class="absolute top-3 left-3 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider
+                        {% if item.report_type == 'lost' %}bg-rose-600 text-white{% else %}bg-cyan-600 text-white{% endif %} shadow-xs">
+                        {{ item.get_report_type_display.split.0 }}
+                    </span>
+
+                    {% if item.is_transit_item %}
+                    <span class="absolute top-3 right-3 px-2 py-0.5 rounded-full bg-slate-900/80 text-white text-[10px] font-bold shadow-xs">
+                        <i class="fas fa-bus text-[9px] mr-1"></i> Transit
+                    </span>
+                    {% endif %}
+                </div>
+
+                <!-- Content -->
+                <div class="p-4 space-y-2">
+                    <div class="flex items-center justify-between text-[11px] text-slate-400">
+                        <span><i class="{{ item.category.icon }} text-cyan-600 mr-1"></i> {{ item.category.name }}</span>
+                        <span>{{ item.incident_date|date:"M d, Y" }}</span>
+                    </div>
+
+                    <h3 class="font-bold text-sm text-slate-800 line-clamp-1 group-hover:text-cyan-700 transition">
+                        {{ item.title }}
+                    </h3>
+
+                    <p class="text-xs text-slate-500 line-clamp-2 leading-relaxed">
+                        {{ item.description }}
+                    </p>
+                </div>
+            </div>
+
+            <!-- Footer Card Info -->
+            <div class="p-4 pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+                <span class="text-slate-400 text-[11px] truncate max-w-[130px]">
+                    <i class="fas fa-map-marker-alt text-cyan-600 mr-0.5"></i> {{ item.safe_area_display|default:item.location_name }}
+                </span>
+                <a href="{% url 'item_detail' item.id %}" class="px-3 py-1.5 rounded-xl bg-cyan-50 text-cyan-800 hover:bg-cyan-600 hover:text-white font-bold text-xs transition">
+                    View &rarr;
+                </a>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-full py-16 text-center bg-white rounded-3xl border border-slate-200">
+            <i class="fas fa-search text-4xl text-slate-300 mb-3"></i>
+            <h3 class="font-bold text-base text-slate-700">No items found matching your filters</h3>
+            <p class="text-xs text-slate-400 mt-1">Try modifying your search terms or clearing filters.</p>
+            <a href="{% url 'item_list' %}" class="inline-block mt-4 px-4 py-2 rounded-xl bg-cyan-600 text-white text-xs font-bold hover:bg-cyan-700 transition">
+                Reset All Filters
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
