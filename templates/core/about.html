@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}About TraceBack AI | AI-Powered Smart Lost & Found Recovery Network{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
+    <!-- Hero / Intro -->
+    <div class="text-center space-y-4">
+        <span class="px-3 py-1 rounded-full bg-cyan-100 text-cyan-800 text-xs font-semibold">AI-Powered Network</span>
+        <h1 class="text-4xl font-extrabold text-slate-900">TraceBack AI</h1>
+        <p class="text-base text-cyan-700 font-semibold italic">"More Than Lost &amp; Found — A Smarter Way to Recover."</p>
+        <p class="text-sm text-slate-600 max-w-2xl mx-auto leading-relaxed">
+            Every day, thousands of valuable personal items—laptops, smartphones, wallets, student IDs, calculators, and books—are misplaced across universities, transit hubs, and public spaces. TraceBack AI replaces scattered social media posts with a unified, intelligent recovery ecosystem.
+        </p>
+    </div>
+
+    <!-- Objectives -->
+    <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6">
+        <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+            <i class="fas fa-bullseye text-cyan-600"></i> Core System Objectives
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-slate-600">
+            <div class="flex items-start gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
+                <i class="fas fa-check-circle text-cyan-600 mt-0.5"></i>
+                <span><strong>Centralized Recovery:</strong> Consolidating scattered lost and found reports into a single, high-fidelity platform.</span>
+            </div>
+            <div class="flex items-start gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
+                <i class="fas fa-brain text-cyan-600 mt-0.5"></i>
+                <span><strong>AI Multimodal Matching:</strong> Comparing images, semantic text tokens, brand/color attributes, and temporal/geographical proximity.</span>
+            </div>
+            <div class="flex items-start gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
+                <i class="fas fa-shield-alt text-cyan-600 mt-0.5"></i>
+                <span><strong>SecretProof™ Verification:</strong> Guarding item handovers with private ownership evidence verification to prevent fraudulent claims.</span>
+            </div>
+            <div class="flex items-start gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
+                <i class="fas fa-qrcode text-cyan-600 mt-0.5"></i>
+                <span><strong>QR Custody Chain:</strong> Providing institutional Lost &amp; Found desks with barcode/QR custody audit trails from intake to closure.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- DIU Pilot Implementation Plan -->
+    <div class="bg-gradient-to-r from-cyan-900 to-cyan-700 text-white p-8 rounded-3xl shadow-lg space-y-4">
+        <div class="flex items-center gap-3">
+            <span class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-lg">
+                <i class="fas fa-university"></i>
+            </span>
+            <div>
+                <h3 class="text-xl font-bold">Pilot Implementation: Daffodil International University (DIU)</h3>
+                <p class="text-xs text-cyan-200">First campus rollout with real-life student and staff integration</p>
+            </div>
+        </div>
+        <p class="text-xs text-cyan-100 leading-relaxed">
+            The initial pilot phase is established at DIU Ashulia Campus. Students report lost laptops, wallets, and ID cards, while library desks and campus security desk personnel manage custody records via QR codes. Real metrics are analyzed before wider expansion to railway stations, hospitals, and transit fleets.
+        </p>
+    </div>
+
+    <!-- Active Desks -->
+    <div>
+        <h3 class="text-lg font-bold text-slate-900 mb-4">Participating Institutional Desks</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {% for desk in desks %}
+            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
+                <div class="font-bold text-sm text-slate-800">{{ desk.name }}</div>
+                <div class="text-xs text-cyan-600 font-semibold">{{ desk.organization }}</div>
+                <div class="text-xs text-slate-500 mt-1"><i class="fas fa-map-pin mr-1 text-slate-400"></i> {{ desk.location_details }}</div>
+                <div class="text-[11px] text-slate-400 mt-2 border-t border-slate-100 pt-1.5"><i class="fas fa-phone mr-1"></i> {{ desk.contact_phone }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
