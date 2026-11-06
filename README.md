@@ -1,5 +1,5 @@
 # 🔍 TraceBack AI — Smart Lost & Found Recovery Network
-> **"More Than Lost & Found — A Smarter Way to Recover."**
+### "More Than Lost & Found — A Smarter Way to Recover."
 
 [![Django Version](https://img.shields.io/badge/Django-5.0.0-092E20?style=for-the-badge&logo=django&logoColor=white)](https://www.djangoproject.com/)
 [![Python Version](https://img.shields.io/badge/Python-3.12+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
@@ -9,6 +9,8 @@
 [![DIU Pilot](https://img.shields.io/badge/Pilot_Campus-DIU_Smart_City-0891b2?style=for-the-badge&logo=google-scholar&logoColor=white)](https://daffodilvarsity.edu.bd/)
 
 ---
+
+#### Visit the Livelink: 
 
 ## 📌 Overview
 
@@ -118,117 +120,7 @@ All accounts are pre-seeded with genuine student items, matches, and QR custody 
 
 ---
 
-## 💻 Local Quickstart
 
-### Prerequisites
-- Python 3.10+ (Recommended: Python 3.12)
-- Git
-- pip
-
-```bash
-# 1. Clone the repository
-git clone https://github.com/<your-username>/traceback_bd.git
-cd traceback_bd
-
-# 2. Create and activate a virtual environment
-python -m venv venv
-# On Windows:
-venv\Scripts\activate
-# On Linux/macOS:
-source venv/bin/activate
-
-# 3. Install dependencies
-pip install -r requirements.txt
-
-# 4. Run database migrations
-python manage.py migrate
-
-# 5. Populate authentic DIU student belongings & AI matches
-python seed_data.py
-
-# 6. Start the local development server
-python manage.py runserver
-```
-
-Open your browser and navigate to:
-- **Application:** `http://127.0.0.1:8000/`
-- **DIU Campus Map:** `http://127.0.0.1:8000/map/`
-- **Admin Portal:** `http://127.0.0.1:8000/admin/`
-
----
-
-## 🌐 1-Click Live Deployment Guide
-
-TraceBack AI is production-ready with pre-configured `Procfile`, `build.sh`, `runtime.txt`, `whitenoise` static serving, and dynamic host permissions.
-
-### Option A: Deploy on Render (Recommended - Free)
-
-1. Fork or push this repository to your **GitHub** account.
-2. Sign in to [Render.com](https://render.com) using your GitHub account.
-3. Click **New +** → **Web Service**.
-4. Select your `traceback_bd` repository.
-5. Fill in the deployment settings:
-   - **Name:** `traceback-ai` (or your preferred name)
-   - **Environment:** `Python 3`
-   - **Region:** `Singapore` (fastest for Bangladesh) or `Frankfurt`
-   - **Branch:** `main`
-   - **Build Command:** `./build.sh`
-   - **Start Command:** `gunicorn traceback_bd.wsgi:application`
-6. Click **Create Web Service**.
-7. Render will automatically build the app, run migrations, seed sample data, and give you a live URL:  
-   `https://traceback-ai.onrender.com`
-
-### Option B: Deploy on Railway
-
-1. Sign in to [Railway.app](https://railway.app).
-2. Click **New Project** → **Deploy from GitHub repo**.
-3. Select this repository.
-4. Railway will automatically detect the `Procfile` and deploy the service.
-5. In project settings, generate a domain.
-
----
-
-## 📁 Project Directory Structure
-
-```
-traceback_bd/
-|-- accounts/               # User authentication, custom User model, roles, profiles
-|-- core/                   # Home, DIU Campus Map, Analytics, static informational views
-|-- items/                  # Lost & found reporting, categories, item detail, speech input
-|-- matching/               # Multimodal AI similarity engine, MatchRecord, notifications
-|-- custody/                # Institutional desks, QR code generation, custody audit logs
-|-- communication/          # Privacy-safe shielded messaging threads & inbox
-|-- templates/              # Tailwind CSS HTML templates (Mid Cyan & Off-White theme)
-|   |-- base.html           # Responsive navbar, user avatar, mobile navigation drawer
-|   |-- core/               # index.html, map.html (Google Maps + Leaflet), analytics.html
-|   |-- items/              # report_lost.html, report_found.html, item_detail.html
-|   |-- custody/            # qr_scan.html, custody_passport.html, desk_list.html
-|-- static/                 # Stylesheet, custom SVG logos, client-side scripts
-|-- media/                  # Real student item photographs, QR custody passports
-|-- traceback_bd/           # Django settings, WSGI/ASGI configurations, root URLs
-|-- build.sh                # Automated Linux build script for Render/Railway deployment
-|-- Procfile                # Gunicorn web server process configuration
-|-- runtime.txt             # Python runtime specification
-|-- requirements.txt        # Production Python dependencies
-|-- seed_data.py            # Automated database seeder with DIU student belongings
-`-- manage.py               # Django CLI management entrypoint
-```
-
----
-
-## 🎨 Color Palette & Visual Theme
-
-| Token | Hex Value | Usage |
-|---|---|---|
-| **Primary Cyan** | `#0891b2` | Core branding, primary action buttons, active states |
-| **Deep Cyan** | `#0e7490` | Headings, hero badges, building icons |
-| **Light Cyan Accent** | `#ecfeff` | Card highlights, badge backgrounds |
-| **Off-White Surface** | `#f8fafc` | Main application background, canvas surfaces |
-| **Crisp White** | `#ffffff` | Floating cards, modals, navigation containers |
-| **Alert Rose** | `#e11d48` | Lost item status pills, high-priority alert badges |
-| **Success Emerald** | `#059669` | Successfully recovered badges, custody confirmations |
-
----
 
 ## 📄 License
 
