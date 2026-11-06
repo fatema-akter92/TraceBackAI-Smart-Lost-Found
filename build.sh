@@ -2,14 +2,14 @@
 # Exit on error
 set -o errexit
 
-# Install python dependencies
+# Install dependencies
 pip install -r requirements.txt
 
-# Convert static asset files
+# Collect static asset files
 python manage.py collectstatic --no-input
 
-# Apply any outstanding database migrations
+# Apply database migrations
 python manage.py migrate
 
-# Seed sample data if empty
+# Populate sample data
 python seed_data.py

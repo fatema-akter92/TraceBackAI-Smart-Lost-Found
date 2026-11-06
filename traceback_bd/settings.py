@@ -12,6 +12,14 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.onrender.com',
+    'https://*.up.railway.app',
+    'https://*.pythonanywhere.com',
+    'http://127.0.0.1',
+    'http://localhost',
+]
+
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',

@@ -1,211 +1,242 @@
-<div align="center">
+# 🔍 TraceBack AI — Smart Lost & Found Recovery Network
+> **"More Than Lost & Found — A Smarter Way to Recover."**
 
-  <img src="static/images/logo-icon.svg" alt="TraceBack AI Logo" width="80" height="80">
-
-  # TraceBack AI
-  ### Smart Lost & Found Recovery Network
-  **"More Than Lost & Found — A Smarter Way to Recover."**
-
-  <p align="center">
-    <img src="https://img.shields.io/badge/Python-3.12-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python 3.12" />
-    <img src="https://img.shields.io/badge/Django-5.0-092E20?style=for-the-badge&logo=django&logoColor=white" alt="Django 5.0" />
-    <img src="https://img.shields.io/badge/Tailwind_CSS-3.4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS" />
-    <img src="https://img.shields.io/badge/Google_Maps-API%20Verified-4285F4?style=for-the-badge&logo=google-maps&logoColor=white" alt="Google Maps" />
-    <img src="https://img.shields.io/badge/Leaflet-JS-199900?style=for-the-badge&logo=leaflet&logoColor=white" alt="Leaflet" />
-    <img src="https://img.shields.io/badge/Status-Live%20Ready-success?style=for-the-badge" alt="Status" />
-  </p>
-
-  <p align="center">
-    <strong>An AI-powered, cryptographic custody and multimodal lost & found recovery ecosystem tailored for university campuses, public transit systems, and institutional help desks.</strong>
-  </p>
-
-  <p align="center">
-    <a href="#-quick-start--local-setup">Quick Start</a> •
-    <a href="#-core-features-breakdown">Features</a> •
-    <a href="#-diu-campus-pilot--google-maps-integration">DIU Pilot Map</a> •
-    <a href="#-live-deployment-guide">Live Deployment Guide</a> •
-    <a href="#-demo-credentials">Demo Accounts</a>
-  </p>
-
-</div>
+[![Django Version](https://img.shields.io/badge/Django-5.0.0-092E20?style=for-the-badge&logo=django&logoColor=white)](https://www.djangoproject.com/)
+[![Python Version](https://img.shields.io/badge/Python-3.12+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![Frontend](https://img.shields.io/badge/Tailwind_CSS-3.4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![Mapping](https://img.shields.io/badge/Google_Maps_&_Leaflet-1.9.4-4285F4?style=for-the-badge&logo=google-maps&logoColor=white)](https://leafletjs.com/)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
+[![DIU Pilot](https://img.shields.io/badge/Pilot_Campus-DIU_Smart_City-0891b2?style=for-the-badge&logo=google-scholar&logoColor=white)](https://daffodilvarsity.edu.bd/)
 
 ---
 
-## 🌐 Live Application Link
+## 📌 Overview
 
-> **Live Deployment URL:**  
-> 🔗 **[https://your-traceback-app.onrender.com](https://your-traceback-app.onrender.com)**  
-> *(Follow the [Deployment Guide](#-live-deployment-guide) below to link your live hosted application.)*
+Every day across university campuses, transit routes, and public facilities, thousands of valuable belongings—smartphones, laptops, institutional smart ID cards, textbooks, keys, and water flasks—are misplaced. Traditional recovery relies on chaotic social media posts and unstructured noticeboards with high rates of fraudulent claims.
 
----
+**TraceBack AI** is an intelligent, full-stack lost-and-found ecosystem built with **Django**, **Tailwind CSS**, and **Leaflet.js/Google Maps**. It bridges the gap between seekers, finders, and institutional custody desks through multi-criteria AI matching, cryptographic **SecretProof™** verification, automated QR custody chains, and real-time transit recovery.
 
-## 📖 Overview & Problem Statement
-
-Every semester across university campuses and transit routes, thousands of valuable belongings—student ID cards, scientific calculators, laptops, umbrellas, and course textbooks—are lost. Previously, students relied on unorganized, noisy social media groups where posts are quickly buried, ownership cannot be verified, and handovers often risk fraud.
-
-**TraceBack AI** solves this with a centralized, enterprise-grade platform:
-- 🧠 **Multi-Dimensional AI Matching Engine:** Automatically calculates compatibility scores across 5 dimensions.
-- 🛡️ **SecretProof™ Verification:** Prevents unauthorized claims with zero-knowledge private fact checks before custody handover.
-- 📍 **Google Maps GPS Integration:** Ground-truth geolocation centered on **Daffodil International University (DIU Ashulia Smart City)**.
-- 🏷️ **QR-Coded Custody Passport:** Full digital custody chain-of-custody tracking from intake to claim closure.
+The initial flagship pilot is custom-calibrated for **Daffodil International University (DIU Ashulia Smart City)**, with GPS-mapped campus landmarks and verified custody desks.
 
 ---
 
-## 🏫 DIU Campus Pilot & Google Maps Integration
+## 🏛️ Pilot Campus: Daffodil International University (DIU)
 
-The pilot deployment is configured for **Daffodil International University (Daffodil Smart City, Birulia, Savar/Ashulia)**:
+TraceBack AI is integrated with physical coordinates and verified building zones of **Daffodil Smart City (Birulia, Savar / Ashulia, Dhaka)**:
 
-| Landmark Zone | GPS Coordinates (Google Maps Verified) | Facility / Recovery Role |
+| Landmark Zone | GPS Coordinates (Google Maps Verified) | Facilities & Function |
 |---|---|---|
-| **Daffodil Smart City (Main Center)** | `23.878870° N, 90.322550° E` | Central Campus Pin (`7MMGV8HF+G2`) |
-| **DIU Central Library** | `23.878400° N, 90.322100° E` | 2nd & 3rd Floor study desks; Official Lost & Found Custody Desk |
-| **Academic Complex (AB 1-4)** | `23.878315° N, 90.322056° E` | CSE, EEE labs, lecture halls & study lounges |
-| **Knowledge Tower** | `23.876841° N, 90.319979° E` | Administrative headquarters, admission center, dean offices |
-| **DIU Central Cafeteria & Food Court** | `23.875130° N, 90.321442° E` | Student dining hall, indoor seating, refreshment kiosks |
-| **Daffodil Lake & Savora Pavilion** | `23.875953° N, 90.322986° E` | Lakeside walkway, student kiosks, open recreational zone |
-| **DIU Sports Ground & Basketball Arena** | `23.875576° N, 90.321080° E` | Central playground, sports court, student pavilion |
-| **Shuttle Depot & Student Bus Stand** | `23.875467° N, 90.321835° E` | Gate 1 transit depot connecting Mirpur, Uttara & Dhanmondi |
-| **Motorcycle & Bicycle Parking Bay** | `23.875700° N, 90.320500° E` | Student two-wheeler parking facility near Main Gate 1 |
+| **Daffodil Smart City (Main Center)** | `23.87887° N, 90.32255° E` | Central university campus pin & campus radius |
+| **Academic Complex (AB 1-4 & CSE Labs)** | `23.878315, 90.322056` | CSE, EEE, SE lecture galleries and hardware labs |
+| **DIU Central Library & Study Commons** | `23.878400, 90.322100` | 2nd & 3rd floor reading desks; Official Custody Desk |
+| **Knowledge Tower (Administrative HQ)** | `23.876841, 90.319979` | Executive offices, admission center & security desk |
+| **Central Cafeteria & Food Court Area** | `23.875130, 90.321442` | Student dining pavilion, indoor canteen & kiosks |
+| **Daffodil Lake & Savora Pavilion** | `23.875953, 90.322986` | Lakeside walkway, student kiosks & seating area |
+| **Basketball Ground & Sports Arena** | `23.875576, 90.321080` | Central basketball court, sports pavilion |
+| **DIU Transport Depot & Shuttle Bay** | `23.875467, 90.321835` | Main Gate 1 on Khagan Road, Mirpur/Uttara shuttles |
+| **Student Parking Bay** | `23.875700, 90.320500` | Two-wheeler & bicycle parking lot near Main Gate |
 
 ---
 
-## 🚀 Core Features Breakdown
+## ⚡ Core Architecture & 13 Flagship Features
 
 ```
-TraceBack AI Core Engine
- ├── 1. Lost Item Reporting (Rich Form + SecretProof™)
- ├── 2. Found Item Reporting (Custody Integration)
- ├── 3. AI Multidimensional Matching Engine (0-100% Weighted Scoring)
- ├── 4. AI Image Auto-Categorization & Vision Heuristics
- ├── 5. Interactive Campus Map (Google Maps Tiles + Satellite Hybrid)
- ├── 6. Automatic Match Push Notifications
- ├── 7. SecretProof™ Cryptographic Ownership Verification
- ├── 8. QR-Based Custody Passport & Audit Trail
- ├── 9. JourneyTrace™ Public Transit Recovery (Bus/Train/Metro)
- ├── 10. Bangla & English Voice Input Reporting
- ├── 11. Image SHA-256 Hash Fraud & Velocity Moderation
- ├── 12. Privacy-Safe Shielded In-App Messaging
- └── 13. Interactive Recovery Analytics Dashboard (Chart.js)
++-----------------------------------------------------------------------------------+
+|                                  TraceBack AI                                     |
+|                       Smart Campus Lost & Found Pipeline                          |
++-----------------------------------------------------------------------------------+
+       |                                       |                               |
+[Seeker Reports Lost]                  [Finder Reports Found]           [Transit Recovery]
+       |                                       |                               |
+       +-------------------> [ AI Multimodal Match Engine ] <------------------+
+                                  | (Score 0-100%)
+                                  v
+                       [ Threshold > 50% Match ]
+                                  |
+                                  v
+                     [ Anonymous Shielded Messaging ]
+                                  |
+                                  v
+                      [ SecretProof™ Verification ]
+                                  |
+                                  v
+                     [ Institutional QR Custody Desk ]
+                                  |
+                                  v
+                        [ Verified Handover & Closure ]
 ```
 
-### 🧠 The AI Matching Engine Formula
-$$Confidence = (W_{cat} \times S_{cat}) + (W_{brand} \times S_{brand}) + (W_{nlp} \times S_{nlp}) + (W_{geo} \times S_{geo}) + (W_{time} \times S_{time})$$
-
-- **Category Match ($25\%$):** Exact tree hierarchy alignment.
-- **Brand & Color ($20\%$):** Normalized attribute token similarity.
-- **NLP Text Semantics ($25\%$):** Tokenized intersection of description details.
-- **Haversine Distance Proximity ($15\%$):** Proximity score within 150m – 5km campus radius.
-- **Temporal Delta ($15\%$):** Time-window score based on incident date/time difference.
+1. **Feature 1: Lost Item Reporting**
+   - Captures item category, brand, primary color, date, time, location, safe public area, description, and confidential ownership proofs.
+2. **Feature 2: Found Item Reporting & Drop-Off**
+   - Allows students and citizens to log discovered belongings and assign them directly to campus lost-and-found desks.
+3. **Feature 3: AI Smart Multi-Dimensional Matching Engine**
+   - Weighted algorithmic matching combining:
+     - **Category Match:** 25%
+     - **NLP Description Semantic Token Overlap:** 25%
+     - **Brand & Color Similarity:** 20%
+     - **Haversine Geospatial Distance Proximity:** 15%
+     - **Temporal Window Delta:** 15%
+4. **Feature 4: AI Image Recognition & Auto-Categorization**
+   - Automated category recommendation based on image metadata, filename tokens, and visual keywords.
+5. **Feature 5: Interactive Campus Recovery Map**
+   - Real **Google Maps Roadmap** & **Google Satellite Hybrid** layers inside Leaflet.js.
+   - Exact DIU building landmarks, approximate 150m privacy radius circles, and one-click zone fly-to buttons.
+   - Direct *"Open in Google Maps ↗"* verification links on every popup.
+6. **Feature 6: Automated Match Notifications**
+   - Real-time in-app alerts dispatched whenever an AI match crosses the 50% confidence threshold.
+7. **Feature 7: SecretProof™ — Fraud-Proof Ownership Verification**
+   - Solves fraudulent claims. Genuine owners provide secret, hidden facts (serial number suffix, internal engraving, lockscreen wallpaper, private tear). Only authorized desk officers inspect proofs before approving handover.
+8. **Feature 8: QR-Based Custody Passport & Tracking**
+   - Dynamic QR code generation for every item deposited at campus desks.
+   - Comprehensive audit trail: `Deposited` → `Stored in Locker/Shelf` → `Owner Verified` → `Handover Completed`.
+9. **Feature 9: JourneyTrace™ — Transit Recovery System**
+   - Dedicated public & university shuttle recovery (Bus, Train, Metro Rail).
+   - Tracks vehicle fleet number, route, boarding & drop-off stops, and seat/compartment numbers.
+10. **Feature 10: Bangla & English Voice Reporting**
+    - Built-in Web Speech API (`webkitSpeechRecognition`) supporting real-time voice input in both **Bangla (`bn-BD`)** and **English (`en-US`)**.
+11. **Feature 11: Fraud Detection & Image Hash Matching**
+    - SHA-256 duplicate image fingerprinting, rate-limiting velocity monitors, and an administrative moderation review center.
+12. **Feature 12: Privacy-Safe Shielded Messaging**
+    - Anonymous end-to-end in-app chat between seekers and finders using handles (e.g. *Seeker #482*, *Finder #917*) without exposing personal phone numbers or email addresses.
+13. **Feature 13: Recovery Analytics Dashboard**
+    - Visual Chart.js metrics detailing recovery success rates, category breakdowns, pipeline status distributions, and area report density.
 
 ---
 
-## 👥 Demo Credentials
+## 👥 Pre-Configured Demo Accounts
 
-The platform comes pre-seeded with authenticated demo accounts for every operational role:
+All accounts are pre-seeded with genuine student items, matches, and QR custody records:
 
-| Role | Username | Password | Access Level |
+| Role | Username | Password | Assigned Function |
 |---|---|---|---|
-| **System Administrator** | `admin` | `admin123` | Django Admin, Fraud Review Center, Platform Metrics |
-| **Desk Staff Officer** | `desk_officer` | `staff123` | DIU Library Desk, QR Custody Manager, Verification Handover |
-| **Student Seeker** | `diu_student` | `student123` | Lost item reports, active AI matches, private messaging |
-| **Finder Student** | `tanvir_finder` | `finder123` | Found item reports, custody deposit requests |
-| **Transit Authority** | `railway_staff` | `transport123` | DIU Campus Shuttle & Transit recovery section |
+| **System Administrator** | `admin` | `admin123` | Full access to Django admin, moderation center, fraud flags |
+| **DIU Desk Officer** | `desk_officer` | `staff123` | Manages DIU Central Library Desk, QR scanner, handover execution |
+| **Student Seeker** | `diu_student` | `student123` | Seeker with open lost reports, active matches, and chat threads |
+| **Student Finder** | `tanvir_finder` | `finder123` | Reported found items deposited at library and cafeteria |
+| **Transit Authority** | `railway_staff` | `transport123` | DIU shuttle fleet & transit route custody manager |
 
 ---
 
-## 💻 Quick Start & Local Setup
+## 💻 Local Quickstart
 
-### 1. Clone the Repository
-```bash
-git clone https://github.com/your-username/traceback_ai.git
-cd traceback_ai
-```
+### Prerequisites
+- Python 3.10+ (Recommended: Python 3.12)
+- Git
+- pip
 
-### 2. Create and Activate Virtual Environment
 ```bash
-# Windows
+# 1. Clone the repository
+git clone https://github.com/<your-username>/traceback_bd.git
+cd traceback_bd
+
+# 2. Create and activate a virtual environment
 python -m venv venv
+# On Windows:
 venv\Scripts\activate
-
-# macOS / Linux
-python3 -m venv venv
+# On Linux/macOS:
 source venv/bin/activate
-```
 
-### 3. Install Dependencies
-```bash
+# 3. Install dependencies
 pip install -r requirements.txt
-```
 
-### 4. Run Migrations & Seed Database
-```bash
+# 4. Run database migrations
 python manage.py migrate
-python seed_data.py
-```
 
-### 5. Launch Development Server
-```bash
+# 5. Populate authentic DIU student belongings & AI matches
+python seed_data.py
+
+# 6. Start the local development server
 python manage.py runserver
 ```
-Visit **http://127.0.0.1:8000/** in your browser.
+
+Open your browser and navigate to:
+- **Application:** `http://127.0.0.1:8000/`
+- **DIU Campus Map:** `http://127.0.0.1:8000/map/`
+- **Admin Portal:** `http://127.0.0.1:8000/admin/`
 
 ---
 
-## 🚀 Live Deployment Guide
+## 🌐 1-Click Live Deployment Guide
 
-Deploy your TraceBack AI instance live in less than 5 minutes on **Render.com** (Free Tier):
+TraceBack AI is production-ready with pre-configured `Procfile`, `build.sh`, `runtime.txt`, `whitenoise` static serving, and dynamic host permissions.
 
-### Option A: Deploy to Render.com (Recommended)
+### Option A: Deploy on Render (Recommended - Free)
 
-1. **Push your code to GitHub** (see Git steps below).
-2. Go to [Render.com](https://render.com) and click **"New +" &rarr; "Web Service"**.
-3. Select your GitHub repository.
-4. Configure the settings:
-   - **Name:** `traceback-ai`
-   - **Region:** Singapore / Frankfurt
+1. Fork or push this repository to your **GitHub** account.
+2. Sign in to [Render.com](https://render.com) using your GitHub account.
+3. Click **New +** → **Web Service**.
+4. Select your `traceback_bd` repository.
+5. Fill in the deployment settings:
+   - **Name:** `traceback-ai` (or your preferred name)
+   - **Environment:** `Python 3`
+   - **Region:** `Singapore` (fastest for Bangladesh) or `Frankfurt`
    - **Branch:** `main`
-   - **Runtime:** `Python 3`
    - **Build Command:** `./build.sh`
    - **Start Command:** `gunicorn traceback_bd.wsgi:application`
-5. Click **"Create Web Service"**.
-6. Render will automatically install dependencies, collect static files, run migrations, seed DIU data, and launch your live URL!
+6. Click **Create Web Service**.
+7. Render will automatically build the app, run migrations, seed sample data, and give you a live URL:  
+   `https://traceback-ai.onrender.com`
 
-### Option B: Deploy to PythonAnywhere
+### Option B: Deploy on Railway
 
-1. Create a free account on [PythonAnywhere](https://www.pythonanywhere.com/).
-2. Open a Bash console and clone your repo:
-   ```bash
-   git clone https://github.com/your-username/traceback_ai.git
-   ```
-3. Set up virtualenv and install `requirements.txt`.
-4. In the **Web** tab, set WSGI file to point to `traceback_bd/wsgi.py` and specify your virtualenv path.
-5. Reload web app.
+1. Sign in to [Railway.app](https://railway.app).
+2. Click **New Project** → **Deploy from GitHub repo**.
+3. Select this repository.
+4. Railway will automatically detect the `Procfile` and deploy the service.
+5. In project settings, generate a domain.
 
 ---
 
-## 📁 Project Structure
+## 📁 Project Directory Structure
 
 ```
 traceback_bd/
-├── accounts/               # Custom user model, RBAC, profiles, registration
-├── core/                   # Home feed, Google Maps interactive campus view, analytics
-├── items/                  # Lost & Found reporting, SecretProof™, voice recognition
-├── matching/               # Multimodal AI similarity scoring engine
-├── custody/                # QR custody generator, inventory lockers, audit logs
-├── communication/          # Privacy-shielded in-app buyer/finder messaging
-├── media/                  # Real student item photos (ID card, books, flask, keys)
-├── static/                 # Brand SVG logos, CSS, JavaScript utilities
-├── templates/              # Tailored responsive Django HTML templates
-├── traceback_bd/           # Project settings, WSGI, URLs, WhiteNoise configuration
-├── build.sh                # Production cloud build & migration script
-├── Procfile                # Gunicorn process definition
-├── requirements.txt        # Production dependency manifest
-├── seed_data.py            # Automated DIU campus items and demo users seeder
-└── manage.py               # Django management CLI
+|-- accounts/               # User authentication, custom User model, roles, profiles
+|-- core/                   # Home, DIU Campus Map, Analytics, static informational views
+|-- items/                  # Lost & found reporting, categories, item detail, speech input
+|-- matching/               # Multimodal AI similarity engine, MatchRecord, notifications
+|-- custody/                # Institutional desks, QR code generation, custody audit logs
+|-- communication/          # Privacy-safe shielded messaging threads & inbox
+|-- templates/              # Tailwind CSS HTML templates (Mid Cyan & Off-White theme)
+|   |-- base.html           # Responsive navbar, user avatar, mobile navigation drawer
+|   |-- core/               # index.html, map.html (Google Maps + Leaflet), analytics.html
+|   |-- items/              # report_lost.html, report_found.html, item_detail.html
+|   |-- custody/            # qr_scan.html, custody_passport.html, desk_list.html
+|-- static/                 # Stylesheet, custom SVG logos, client-side scripts
+|-- media/                  # Real student item photographs, QR custody passports
+|-- traceback_bd/           # Django settings, WSGI/ASGI configurations, root URLs
+|-- build.sh                # Automated Linux build script for Render/Railway deployment
+|-- Procfile                # Gunicorn web server process configuration
+|-- runtime.txt             # Python runtime specification
+|-- requirements.txt        # Production Python dependencies
+|-- seed_data.py            # Automated database seeder with DIU student belongings
+`-- manage.py               # Django CLI management entrypoint
 ```
 
 ---
 
-## 📄 License & Credits
+## 🎨 Color Palette & Visual Theme
 
-Distributed under the **MIT License**. Developed for modern educational and public transit institutions to centralize and secure lost item recoveries.
+| Token | Hex Value | Usage |
+|---|---|---|
+| **Primary Cyan** | `#0891b2` | Core branding, primary action buttons, active states |
+| **Deep Cyan** | `#0e7490` | Headings, hero badges, building icons |
+| **Light Cyan Accent** | `#ecfeff` | Card highlights, badge backgrounds |
+| **Off-White Surface** | `#f8fafc` | Main application background, canvas surfaces |
+| **Crisp White** | `#ffffff` | Floating cards, modals, navigation containers |
+| **Alert Rose** | `#e11d48` | Lost item status pills, high-priority alert badges |
+| **Success Emerald** | `#059669` | Successfully recovered badges, custody confirmations |
+
+---
+
+## 📄 License
+
+Distributed under the **MIT License**. See `LICENSE` for more information.
+
+---
+
+<div align="center">
+  <b>Developed for Daffodil International University (DIU) Smart City &amp; Campus Recovery Network</b><br>
+  <sub>Powered by Django 5 &bull; Leaflet.js &bull; Google Maps &bull; Tailwind CSS</sub>
+</div>
