@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}Deposit Item in Custody | TraceBack BD{% endblock %}
+
+{% block content %}
+<div class="max-w-xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-md p-6 sm:p-8 space-y-6">
+        <div class="text-center space-y-1 pb-4 border-b border-slate-100">
+            <div class="w-12 h-12 rounded-2xl bg-cyan-100 text-cyan-700 flex items-center justify-center mx-auto text-xl shadow-xs">
+                <i class="fas fa-boxes"></i>
+            </div>
+            <h1 class="text-xl font-extrabold text-slate-900">Desk Custody Intake</h1>
+            <p class="text-xs text-slate-500">Item: <strong class="text-slate-800">{{ item.title }}</strong> ({{ item.tracking_code }})</p>
+        </div>
+
+        <form method="POST" class="space-y-4">
+            {% csrf_token %}
+            <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Select Lost &amp; Found Desk *</label>
+                <select name="desk_id" required class="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:border-cyan-500">
+                    {% for d in desks %}
+                    <option value="{{ d.id }}">{{ d.name }} - {{ d.organization }} ({{ d.location_details }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Locker / Bin / Shelf Number *</label>
+                <input type="text" name="shelf" required placeholder="e.g. Locker A-12 / Bin 04" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:border-cyan-500">
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Intake Notes</label>
+                <textarea name="notes" rows="3" placeholder="Condition upon receipt, accessories present, battery level..." class="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:border-cyan-500"></textarea>
+            </div>
+
+            <button type="submit" class="w-full py-3 px-4 bg-cyan-600 text-white font-bold text-xs rounded-xl hover:bg-cyan-700 transition shadow-sm">
+                Generate QR Tag &amp; Confirm Custody Intake
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
