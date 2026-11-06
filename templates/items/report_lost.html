@@ -1,0 +1,222 @@
+{% extends 'base.html' %}
+
+{% block title %}Report Lost Item | TraceBack BD{% endblock %}
+
+{% block extra_head %}
+<script src="/static/js/voice_input.js"></script>
+<script src="/static/js/ai_helper.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-md p-6 sm:p-10 space-y-8">
+        
+        <!-- Header & Voice Assistant Toggle -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-100">
+            <div>
+                <div class="flex items-center gap-2">
+                    <span class="w-3 h-3 rounded-full bg-rose-500"></span>
+                    <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900">Report a Lost Item</h1>
+                </div>
+                <p class="text-xs sm:text-sm text-slate-500 mt-1">
+                    Provide detailed visual cues. Our AI Smart Matching engine will cross-reference found belongings.
+                </p>
+            </div>
+
+            <!-- Voice Assistant (Feature 10: Bangla Voice Reporting) -->
+            <div class="flex flex-col items-end gap-2">
+                <div class="flex items-center gap-2">
+                    <select id="voice-lang" class="text-xs border border-slate-200 rounded-lg px-2 py-1 bg-slate-50 text-slate-700">
+                        <option value="bn-BD" selected>Bangla (বাংলা)</option>
+                        <option value="en-US">English (US)</option>
+                    </select>
+                    <button type="button" id="voice-btn" class="px-3.5 py-2 rounded-xl bg-cyan-100 text-cyan-800 text-xs font-bold hover:bg-cyan-200 transition flex items-center gap-1.5 shadow-xs">
+                        <i class="fas fa-microphone text-cyan-600"></i> Voice Assist (Bangla/English)
+                    </button>
+                </div>
+                <div id="voice-status" class="text-[11px] font-semibold text-rose-600 hidden"></div>
+                <div id="voice-preview" class="text-[11px] text-slate-500 italic max-w-xs text-right hidden"></div>
+            </div>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data" class="space-y-6">
+            {% csrf_token %}
+
+            <!-- Row 1: Title & Category -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                        Item Title *
+                    </label>
+                    <input type="text" name="title" id="id_title" required placeholder="e.g. Black HP Pavilion Laptop 15-inch" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 transition">
+                </div>
+
+                <div>
+                    <div class="flex items-center justify-between mb-1">
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                            Item Category *
+                        </label>
+                        <div id="ai-suggest-badge" class="hidden"></div>
+                    </div>
+                    <select name="category" id="id_category" required class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 transition">
+                        <option value="" disabled selected>Select Category...</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat.id }}">{{ cat.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <!-- Row 2: Brand & Primary Color -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                        Brand / Manufacturer
+                    </label>
+                    <input type="text" name="brand" id="id_brand" placeholder="e.g. HP, Apple, Dell, Samsung, Walton" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 transition">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                        Primary Color
+                    </label>
+                    <input type="text" name="primary_color" id="id_primary_color" placeholder="e.g. Black, Silver, Navy Blue, Red" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 transition">
+                </div>
+            </div>
+
+            <!-- Row 3: Description -->
+            <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                    Public Description *
+                </label>
+                <textarea name="description" id="id_description" rows="3" required placeholder="Describe appearance, stickers, casing, visible signs of wear..." class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 transition"></textarea>
+                <p class="text-[11px] text-slate-400 mt-1">This description is public. Do NOT disclose secret serial numbers here; use SecretProof below.</p>
+            </div>
+
+            <!-- Row 4: Photo Upload with AI preview -->
+            <div class="p-4 rounded-2xl bg-cyan-50/50 border border-cyan-200">
+                <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1">
+                    <i class="fas fa-camera text-cyan-600 mr-1"></i> Item Photo (Optional / Recommended)
+                </label>
+                <input type="file" name="image" id="id_image" accept="image/*" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-cyan-600 file:text-white hover:file:bg-cyan-700">
+                <p class="text-[11px] text-slate-500 mt-1">AI inspects image visual patterns for matching against found items.</p>
+            </div>
+
+            <!-- Row 5: Date, Time & Approximate Location -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Incident Date *</label>
+                    <input type="date" name="incident_date" required class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 focus:outline-none focus:border-cyan-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Approximate Time</label>
+                    <input type="time" name="incident_time" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 focus:outline-none focus:border-cyan-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Location / Campus *</label>
+                    <input type="text" name="location_name" id="id_location_name" required placeholder="e.g. DIU Central Library 3rd floor" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 focus:outline-none focus:border-cyan-500">
+                </div>
+            </div>
+
+            <!-- Hidden Coordinates (Default DIU / Dhaka) -->
+            <input type="hidden" name="latitude" id="id_latitude" value="23.875900">
+            <input type="hidden" name="longitude" id="id_longitude" value="90.323500">
+
+            <!-- Quick Location presets -->
+            <div class="flex items-center gap-2 flex-wrap text-xs">
+                <span class="text-slate-400 font-semibold text-[11px]">Quick Location:</span>
+                <button type="button" onclick="setPresetLocation('DIU Ashulia Campus - Library', 23.875900, 90.323500)" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-cyan-100 text-slate-700 text-[11px] transition">DIU Library</button>
+                <button type="button" onclick="setPresetLocation('DIU Admin Building Ground Floor', 23.876500, 90.324200)" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-cyan-100 text-slate-700 text-[11px] transition">DIU Admin Building</button>
+                <button type="button" onclick="setPresetLocation('Mirpur 10 Metro Station', 23.807000, 90.368600)" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-cyan-100 text-slate-700 text-[11px] transition">Mirpur 10 Metro</button>
+                <button type="button" onclick="setPresetLocation('Airport Railway Station Dhaka', 23.851600, 90.407800)" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-cyan-100 text-slate-700 text-[11px] transition">Airport Station</button>
+            </div>
+
+            <!-- Feature 9: JourneyTrace — Transport Recovery Accordion -->
+            <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-4">
+                <div class="flex items-center justify-between cursor-pointer" onclick="toggleTransitFields()">
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-bus-alt text-cyan-600"></i>
+                        <span class="font-bold text-xs uppercase tracking-wider text-slate-800">JourneyTrace™ — Lost on Bus / Train / Metro?</span>
+                    </div>
+                    <span id="transit-indicator" class="text-xs font-semibold text-cyan-700">Click to Expand &darr;</span>
+                </div>
+
+                <div id="transit-fields" class="hidden space-y-4 pt-2 border-t border-slate-200">
+                    <input type="checkbox" name="is_transit_item" id="id_is_transit_item" class="hidden">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Vehicle / Transport Name</label>
+                            <input type="text" name="transit_vehicle_name" placeholder="e.g. Bikolpo Bus, Metro Line 6, Subarna Express" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-300">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Route</label>
+                            <input type="text" name="transit_route" placeholder="e.g. Mirpur 10 to Uttara Sector 10" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-300">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Boarding Station</label>
+                            <input type="text" name="transit_boarding_point" placeholder="e.g. Mirpur 10 Station" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-300">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Drop-off Station</label>
+                            <input type="text" name="transit_drop_point" placeholder="e.g. Uttara North" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-300">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Seat / Compartment #</label>
+                            <input type="text" name="transit_seat_number" placeholder="e.g. Seat B-4 / Coach GHA" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-300">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feature 7: SecretProof™ Hidden Ownership Verification Info -->
+            <div class="p-5 rounded-2xl bg-amber-50/70 border border-amber-200 space-y-2">
+                <div class="flex items-center gap-2 text-amber-900 font-bold text-xs uppercase tracking-wider">
+                    <i class="fas fa-shield-alt text-amber-600"></i> SecretProof™ — Confidential Owner Identification
+                </div>
+                <p class="text-[11px] text-amber-800 leading-relaxed">
+                    Provide private facts that <strong>only the genuine owner would know</strong>. Examples: small scratch under battery, exact serial digits, private lock screen wallpaper, specific cards inside wallet. 
+                    <span class="font-bold underline">This is strictly encrypted and hidden from the public.</span>
+                </p>
+                <textarea name="secret_proof_details" rows="3" placeholder="Enter private details here..." class="w-full px-3.5 py-2.5 text-xs rounded-xl border border-amber-300 bg-white focus:outline-none focus:border-cyan-500"></textarea>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="w-full py-3.5 px-6 rounded-2xl bg-rose-600 text-white font-bold text-sm hover:bg-rose-700 transition shadow-lg shadow-rose-600/30 flex items-center justify-center gap-2">
+                <i class="fas fa-paper-plane"></i> Submit Lost Report &amp; Run AI Matching
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    function toggleTransitFields() {
+        const fields = document.getElementById('transit-fields');
+        const indicator = document.getElementById('transit-indicator');
+        const checkbox = document.getElementById('id_is_transit_item');
+
+        if (fields.classList.contains('hidden')) {
+            fields.classList.remove('hidden');
+            indicator.innerHTML = "Click to Collapse &uarr;";
+            if (checkbox) checkbox.checked = true;
+        } else {
+            fields.classList.add('hidden');
+            indicator.innerHTML = "Click to Expand &darr;";
+            if (checkbox) checkbox.checked = false;
+        }
+    }
+
+    function setPresetLocation(name, lat, lng) {
+        document.getElementById('id_location_name').value = name;
+        document.getElementById('id_latitude').value = lat;
+        document.getElementById('id_longitude').value = lng;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        new VoiceReportAssistant({});
+    });
+</script>
+{% endblock %}
