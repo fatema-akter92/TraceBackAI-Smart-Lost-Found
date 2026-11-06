@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block title %}SecretProof™ Ownership Claim | TraceBack BD{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-md p-6 sm:p-10 space-y-6">
+        
+        <!-- Header -->
+        <div class="text-center space-y-2 pb-6 border-b border-slate-100">
+            <div class="w-12 h-12 rounded-2xl bg-cyan-100 text-cyan-700 flex items-center justify-center mx-auto text-xl shadow-xs">
+                <i class="fas fa-shield-alt"></i>
+            </div>
+            <span class="text-xs font-bold text-cyan-600 uppercase tracking-wider">Feature 7</span>
+            <h1 class="text-2xl font-extrabold text-slate-900">SecretProof™ Verification</h1>
+            <p class="text-xs text-slate-500">
+                Claiming Found Item: <strong class="text-slate-800">{{ item.title }}</strong>
+            </p>
+        </div>
+
+        <!-- Security Notice -->
+        <div class="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-xs text-amber-900 space-y-1">
+            <div class="font-bold flex items-center gap-1.5">
+                <i class="fas fa-exclamation-triangle text-amber-600"></i> Ownership Verification Policy:
+            </div>
+            <p class="leading-relaxed">
+                To prevent wrongful claiming, please describe unique characteristics that <strong>were not mentioned in the public listing</strong>. Desk staff and administrators will compare this against the physical item before approving release.
+            </p>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data" class="space-y-5">
+            {% csrf_token %}
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                    Secret Identifying Characteristics *
+                </label>
+                <textarea name="claimant_secret_proof" rows="5" required placeholder="Examples:
+- Serial number ends in '7482'
+- Scratch or sticker on bottom left corner
+- Lock screen wallpaper image description
+- Contents of the inner pocket / card names
+- Purchase invoice date / shop name" class="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-300 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 transition"></textarea>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                    Proof Attachment (Receipt / Warranty / Photo)
+                </label>
+                <input type="file" name="proof_document" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-cyan-600 file:text-white hover:file:bg-cyan-700">
+                <p class="text-[11px] text-slate-400 mt-1">Attach photo of purchase receipt, box barcode, or an old photo of you with the item.</p>
+            </div>
+
+            <button type="submit" class="w-full py-3.5 px-6 rounded-2xl bg-cyan-600 text-white font-bold text-sm hover:bg-cyan-700 transition shadow-lg shadow-cyan-600/30 flex items-center justify-center gap-2">
+                <i class="fas fa-lock"></i> Submit SecretProof Claim for Review
+            </button>
+        </form>
+
+        <div class="text-center pt-2 border-t border-slate-100">
+            <a href="{% url 'item_detail' item.id %}" class="text-xs text-slate-400 hover:text-slate-600 font-semibold">
+                Cancel &amp; Return to Item Listing
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
