@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+
+{% block title %}AI Match Breakdown | TraceBack BD{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <div class="flex items-center gap-2">
+                <span class="px-2.5 py-0.5 rounded-full bg-cyan-100 text-cyan-800 text-xs font-semibold">Feature 3</span>
+                <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900">AI Match Evaluation</h1>
+            </div>
+            <p class="text-xs sm:text-sm text-slate-500 mt-1">
+                Comparing target item: <strong class="text-slate-800">{{ item.title }}</strong> ({{ item.tracking_code }})
+            </p>
+        </div>
+        <a href="{% url 'item_detail' item.id %}" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl text-xs font-bold hover:bg-slate-200 transition">
+            &larr; Back to Item
+        </a>
+    </div>
+
+    <!-- Matches List -->
+    <div class="space-y-6">
+        {% for m in matches %}
+        {% with candidate=m.candidate %}
+        <div class="bg-white rounded-3xl border-2 border-slate-200 hover:border-cyan-400 p-6 sm:p-8 shadow-sm space-y-6 transition">
+            
+            <!-- Match Header & Total Score -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+                <div class="space-y-1">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-cyan-700 bg-cyan-50 px-2 py-0.5 rounded">
+                        Candidate {{ candidate.get_report_type_display.split.0 }} Item
+                    </span>
+                    <h3 class="text-xl font-bold text-slate-900">{{ candidate.title }}</h3>
+                    <p class="text-xs text-slate-400">
+                        Date: {{ candidate.incident_date }} &bull; Location: {{ candidate.safe_area_display }}
+                    </p>
+                </div>
+
+                <!-- Total Score Big Badge -->
+                <div class="text-center sm:text-right">
+                    <div class="inline-flex flex-col items-center sm:items-end">
+                        <span class="text-3xl font-extrabold text-cyan-600">{{ m.similarity_score }}%</span>
+                        <span class="text-[10px] uppercase font-bold text-slate-400">Match Confidence</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Multi-Dimensional Score Breakdown Progress Bars -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                <!-- 1. Category -->
+                <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-100 space-y-1.5">
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="text-slate-500 font-semibold">Category Match</span>
+                        <span class="font-bold text-slate-800">{{ m.category_score }}%</span>
+                    </div>
+                    <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                        <div class="bg-cyan-600 h-full rounded-full" style="width: {{ m.category_score }}%"></div>
+                    </div>
+                    <span class="text-[10px] text-slate-400 block truncate">{{ item.category.name }} vs {{ candidate.category.name }}</span>
+                </div>
+
+                <!-- 2. Brand & Color -->
+                <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-100 space-y-1.5">
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="text-slate-500 font-semibold">Brand &amp; Color</span>
+                        <span class="font-bold text-slate-800">{{ m.color_brand_score }}%</span>
+                    </div>
+                    <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                        <div class="bg-cyan-600 h-full rounded-full" style="width: {{ m.color_brand_score }}%"></div>
+                    </div>
+                    <span class="text-[10px] text-slate-400 block truncate">{{ item.brand|default:"-" }} / {{ item.primary_color|default:"-" }}</span>
+                </div>
+
+                <!-- 3. Text Semantics -->
+                <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-100 space-y-1.5">
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="text-slate-500 font-semibold">Description NLP</span>
+                        <span class="font-bold text-slate-800">{{ m.text_score }}%</span>
+                    </div>
+                    <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                        <div class="bg-cyan-600 h-full rounded-full" style="width: {{ m.text_score }}%"></div>
+                    </div>
+                    <span class="text-[10px] text-slate-400 block truncate">Keywords overlap</span>
+                </div>
+
+                <!-- 4. Location Proximity -->
+                <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-100 space-y-1.5">
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="text-slate-500 font-semibold">Proximity</span>
+                        <span class="font-bold text-slate-800">{{ m.location_score }}%</span>
+                    </div>
+                    <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                        <div class="bg-cyan-600 h-full rounded-full" style="width: {{ m.location_score }}%"></div>
+                    </div>
+                    <span class="text-[10px] text-slate-400 block truncate">Haversine GPS Dist</span>
+                </div>
+
+                <!-- 5. Time Window -->
+                <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-100 space-y-1.5">
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="text-slate-500 font-semibold">Time Delta</span>
+                        <span class="font-bold text-slate-800">{{ m.time_score }}%</span>
+                    </div>
+                    <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                        <div class="bg-cyan-600 h-full rounded-full" style="width: {{ m.time_score }}%"></div>
+                    </div>
+                    <span class="text-[10px] text-slate-400 block truncate">Incident date window</span>
+                </div>
+            </div>
+
+            <!-- Description excerpt -->
+            <div class="p-3.5 bg-slate-50/60 rounded-2xl border border-slate-100 text-xs text-slate-600">
+                <strong class="text-slate-800">Candidate Description:</strong> {{ candidate.description }}
+            </div>
+
+            <!-- Actions -->
+            <div class="flex flex-wrap items-center justify-between gap-3 pt-2">
+                <div class="flex items-center gap-2">
+                    <a href="{% url 'item_detail' candidate.id %}" class="px-4 py-2 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-xl text-xs font-semibold transition">
+                        View Full Candidate Listing
+                    </a>
+                    {% if user != candidate.user %}
+                    <a href="{% url 'start_thread' candidate.id %}" class="px-4 py-2 bg-white border border-slate-300 text-slate-700 hover:text-cyan-700 rounded-xl text-xs font-semibold transition">
+                        <i class="fas fa-comments text-cyan-600 mr-1"></i> Anonymous Chat
+                    </a>
+                    {% endif %}
+                </div>
+
+                <div class="flex items-center gap-2">
+                    {% if m.status != 'accepted' %}
+                    <a href="{% url 'handle_match_action' m.id 'accept' %}" class="px-5 py-2 bg-cyan-600 text-white rounded-xl text-xs font-bold hover:bg-cyan-700 transition shadow-xs">
+                        <i class="fas fa-check-circle mr-1"></i> Accept Match &amp; Claim Item
+                    </a>
+                    <a href="{% url 'handle_match_action' m.id 'reject' %}" class="px-3.5 py-2 bg-rose-50 text-rose-700 hover:bg-rose-100 rounded-xl text-xs font-semibold transition">
+                        Dismiss
+                    </a>
+                    {% else %}
+                    <span class="px-3 py-1.5 rounded-xl bg-emerald-100 text-emerald-800 text-xs font-bold">
+                        <i class="fas fa-check-double mr-1"></i> Accepted Match
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endwith %}
+        {% empty %}
+        <div class="bg-white rounded-3xl border border-slate-200 p-12 text-center space-y-3">
+            <i class="fas fa-search-location text-4xl text-slate-300"></i>
+            <h3 class="font-bold text-slate-800 text-base">No AI Match Suggestions Yet</h3>
+            <p class="text-xs text-slate-500 max-w-md mx-auto">
+                Our background matching engine runs continuously. When a corresponding item is reported with high similarity, you will receive an automatic notification.
+            </p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
