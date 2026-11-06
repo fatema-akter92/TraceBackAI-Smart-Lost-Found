@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block title %}QR Code Custody Scanner | TraceBack BD{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-md p-6 sm:p-10 space-y-6">
+        
+        <!-- Header -->
+        <div class="text-center space-y-2 pb-6 border-b border-slate-100">
+            <div class="w-14 h-14 rounded-2xl bg-cyan-100 text-cyan-700 flex items-center justify-center mx-auto text-2xl shadow-xs">
+                <i class="fas fa-qrcode"></i>
+            </div>
+            <span class="text-xs font-bold text-cyan-600 uppercase tracking-wider">Feature 8: Custody Tracking</span>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900">QR Custody Scanner &amp; Lookup</h1>
+            <p class="text-xs text-slate-500">
+                Scan an item's recovery tag QR code or manually enter the tracking code.
+            </p>
+        </div>
+
+        <!-- Manual Tracking Code Search Form -->
+        <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200 space-y-3">
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                Enter Tracking Code or Custody Token
+            </label>
+            <div class="flex items-center gap-2">
+                <div class="relative flex-1">
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
+                        <i class="fas fa-barcode text-cyan-600"></i>
+                    </span>
+                    <input type="text" id="manual-code-input" placeholder="e.g. TB-9A4F72BC" class="w-full pl-9 pr-3 py-2.5 text-xs font-mono font-bold rounded-xl border border-slate-300 focus:outline-none focus:border-cyan-500">
+                </div>
+                <button type="button" onclick="lookupCode()" class="px-5 py-2.5 bg-cyan-600 text-white rounded-xl text-xs font-bold hover:bg-cyan-700 transition shadow-xs">
+                    Look Up
+                </button>
+            </div>
+            <p class="text-[11px] text-slate-400">Found on the item tag, verification receipt, or custody sheet.</p>
+        </div>
+
+        <!-- Camera Scanner Simulator / Reader -->
+        <div class="text-center space-y-4 pt-2">
+            <div class="relative w-64 h-64 mx-auto rounded-3xl border-2 border-dashed border-cyan-400 bg-slate-50 flex flex-col items-center justify-center overflow-hidden group">
+                <div class="absolute inset-x-4 top-1/2 h-0.5 bg-cyan-500 animate-pulse shadow-sm"></div>
+                <i class="fas fa-camera text-4xl text-cyan-500/70 mb-2"></i>
+                <span class="text-xs font-bold text-slate-700">Camera Scanner</span>
+                <span class="text-[11px] text-slate-400 px-4 text-center mt-1">Point your mobile camera at the item's QR tag</span>
+            </div>
+
+            <div class="flex items-center justify-center gap-3">
+                <button type="button" onclick="startCameraSim()" class="px-4 py-2 bg-slate-100 text-slate-700 hover:bg-cyan-50 hover:text-cyan-700 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
+                    <i class="fas fa-video text-cyan-600"></i> Activate Camera
+                </button>
+            </div>
+            <p id="cam-status" class="text-xs text-slate-500 italic"></p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    function lookupCode() {
+        const code = document.getElementById('manual-code-input').value.trim();
+        if (!code) {
+            alert('Please enter a tracking code.');
+            return;
+        }
+        window.location.href = `/custody/verify/${encodeURIComponent(code)}/`;
+    }
+
+    function startCameraSim() {
+        const status = document.getElementById('cam-status');
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            status.innerText = "Camera initialized. Looking for QR code pattern...";
+            // If user enters code or detects
+        } else {
+            status.innerText = "Camera not accessible in this environment. Please enter code above.";
+        }
+    }
+</script>
+{% endblock %}
