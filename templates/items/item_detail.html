@@ -1,0 +1,357 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ item.title }} | TraceBack BD{% endblock %}
+
+{% block extra_head %}
+<!-- Leaflet for mini map -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+    #item-mini-map {
+        height: 220px;
+        width: 100%;
+        border-radius: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+    
+    <!-- Top Action Breadcrumb -->
+    <div class="flex items-center justify-between text-xs text-slate-500">
+        <a href="{% url 'item_list' %}" class="flex items-center gap-1 hover:text-cyan-700 font-semibold">
+            <i class="fas fa-arrow-left"></i> Back to Item Catalog
+        </a>
+        <div class="flex items-center gap-2">
+            <span class="font-mono bg-slate-100 px-2.5 py-1 rounded-lg text-slate-700 font-bold">
+                Tracking: {{ item.tracking_code }}
+            </span>
+            <a href="{% url 'file_complaint' %}?item_id={{ item.id }}" class="text-rose-500 hover:text-rose-700 font-semibold flex items-center gap-1">
+                <i class="fas fa-flag"></i> Report
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Detail Card -->
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 p-6 sm:p-8">
+            
+            <!-- Left Column: Image & Mini Map (5 Cols) -->
+            <div class="lg:col-span-5 space-y-6">
+                <!-- Item Image or Placeholder -->
+                <div class="w-full h-72 rounded-2xl bg-slate-100 border border-slate-200 overflow-hidden flex items-center justify-center relative group">
+                    {% if item.image %}
+                    <img src="{{ item.display_image_url }}" alt="{{ item.title }}" class="w-full h-full object-cover">
+                    {% else %}
+                    <div class="text-center p-6 text-slate-400">
+                        <i class="{{ item.category.icon }} text-5xl mb-2 text-cyan-600/60"></i>
+                        <p class="text-xs font-semibold">No photograph uploaded</p>
+                    </div>
+                    {% endif %}
+
+                    <!-- Status Badge -->
+                    <div class="absolute top-3 left-3">
+                        <span class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-sm
+                            {% if item.report_type == 'lost' %}bg-rose-500 text-white{% else %}bg-cyan-600 text-white{% endif %}">
+                            {{ item.get_report_type_display.split.0 }}
+                        </span>
+                    </div>
+
+                    <div class="absolute top-3 right-3">
+                        <span class="px-2.5 py-1 rounded-full text-[11px] font-bold shadow-sm
+                            {% if item.status == 'recovered' %}bg-emerald-500 text-white
+                            {% elif item.status == 'under_verification' %}bg-amber-500 text-white
+                            {% else %}bg-slate-900/80 text-white{% endif %}">
+                            {{ item.get_status_display }}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Feature 8: Custody Badge (if deposited at desk) -->
+                {% if custody %}
+                <div class="p-4 rounded-2xl bg-cyan-50 border border-cyan-200 flex items-center justify-between">
+                    <div class="space-y-1">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-cyan-800">
+                            <i class="fas fa-qrcode mr-1"></i> Institutional Desk Custody
+                        </span>
+                        <h4 class="font-bold text-xs text-slate-900">{{ custody.desk.name }}</h4>
+                        <p class="text-[11px] text-slate-500">Stored at: <strong>{{ custody.storage_bin_or_shelf|default:"General Storage" }}</strong></p>
+                    </div>
+                    <a href="{% url 'verify_item_qr' item.tracking_code %}" class="px-3 py-1.5 rounded-xl bg-cyan-600 text-white text-xs font-bold hover:bg-cyan-700 transition">
+                        View QR Pass
+                    </a>
+                </div>
+                {% endif %}
+
+                <!-- Mini Map (Feature 5: Approximate Area Pin) -->
+                <div>
+                    <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                        <i class="fas fa-map-marked-alt text-cyan-600"></i> Approximate Location
+                    </h4>
+                    <div id="item-mini-map"></div>
+                    <p class="text-[11px] text-slate-400 mt-1.5">
+                        <i class="fas fa-shield-alt text-cyan-600"></i> {{ item.safe_area_display|default:item.location_name }}
+                    </p>
+                </div>
+            </div>
+
+            <!-- Right Column: Details & Actions (7 Cols) -->
+            <div class="lg:col-span-7 space-y-6 flex flex-col justify-between">
+                <div class="space-y-4">
+                    <div>
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="px-2.5 py-0.5 rounded-lg bg-slate-100 text-slate-700 text-xs font-semibold">
+                                <i class="{{ item.category.icon }} text-cyan-600 mr-1"></i> {{ item.category.name }}
+                            </span>
+                            <span class="text-xs text-slate-400">Reported {{ item.created_at|timesince }} ago</span>
+                        </div>
+                        <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900">{{ item.title }}</h1>
+                    </div>
+
+                    <!-- Specs Attributes Table -->
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-100 text-xs">
+                        <div>
+                            <span class="text-slate-400 block text-[11px]">Brand</span>
+                            <span class="font-bold text-slate-800">{{ item.brand|default:"Unspecified" }}</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 block text-[11px]">Primary Color</span>
+                            <span class="font-bold text-slate-800">{{ item.primary_color|default:"Unspecified" }}</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 block text-[11px]">Date {{ item.get_report_type_display.split.0 }}</span>
+                            <span class="font-bold text-slate-800">{{ item.incident_date }}</span>
+                        </div>
+                        <div class="sm:col-span-3">
+                            <span class="text-slate-400 block text-[11px]">General Location</span>
+                            <span class="font-bold text-slate-800">{{ item.location_name }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div>
+                        <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Description</h4>
+                        <p class="text-sm text-slate-600 leading-relaxed bg-slate-50/50 p-4 rounded-2xl border border-slate-100">
+                            {{ item.description }}
+                        </p>
+                    </div>
+
+                    <!-- Feature 9: JourneyTrace Details (if transit item) -->
+                    {% if item.is_transit_item %}
+                    <div class="p-4 rounded-2xl bg-cyan-50/60 border border-cyan-200 space-y-2">
+                        <div class="flex items-center gap-2 text-cyan-900 font-bold text-xs uppercase tracking-wider">
+                            <i class="fas fa-bus-alt text-cyan-600"></i> JourneyTrace™ Transit Log
+                        </div>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
+                            <div>
+                                <span class="text-slate-400 text-[11px] block">Vehicle</span>
+                                <span class="font-bold text-slate-800">{{ item.transit_vehicle_name|default:"Transit" }}</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 text-[11px] block">Route</span>
+                                <span class="font-bold text-slate-800">{{ item.transit_route|default:"Route unspecified" }}</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 text-[11px] block">Seat / Bogie</span>
+                                <span class="font-bold text-slate-800">{{ item.transit_seat_number|default:"N/A" }}</span>
+                            </div>
+                            <div class="sm:col-span-3 text-[11px] text-slate-600 border-t border-cyan-100 pt-1">
+                                Boarded at: <strong>{{ item.transit_boarding_point }}</strong> &bull; Drop-off: <strong>{{ item.transit_drop_point }}</strong>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- SecretProof Owner View (Feature 7) -->
+                    {% if is_owner and item.secret_proof_details %}
+                    <div class="p-4 rounded-2xl bg-amber-50/80 border border-amber-200 space-y-1">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-amber-900 flex items-center gap-1">
+                            <i class="fas fa-lock"></i> Your Registered SecretProof (Confidential)
+                        </span>
+                        <p class="text-xs text-amber-950 font-mono bg-white p-2.5 rounded-xl border border-amber-200">
+                            {{ item.secret_proof_details }}
+                        </p>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Action Buttons: Claim / Safe Chat -->
+                <div class="pt-6 border-t border-slate-100 space-y-3">
+                    <div class="flex flex-wrap items-center gap-3">
+                        {% if item.report_type == 'found' %}
+                            {% if not is_owner %}
+                                {% if user_claim %}
+                                <div class="flex-1 py-3 px-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs font-bold text-center">
+                                    <i class="fas fa-hourglass-half mr-1"></i> Your Claim Status: 
+                                    <span class="uppercase underline">{{ user_claim.get_status_display }}</span>
+                                </div>
+                                {% else %}
+                                <a href="{% url 'submit_claim' item.id %}" class="flex-1 py-3 px-4 rounded-2xl bg-cyan-600 text-white font-bold text-xs hover:bg-cyan-700 transition shadow-md shadow-cyan-600/30 text-center flex items-center justify-center gap-2">
+                                    <i class="fas fa-shield-alt"></i> Claim Ownership (SecretProof™)
+                                </a>
+                                {% endif %}
+                            {% endif %}
+                        {% endif %}
+
+                        <!-- Feature 12: Privacy-Safe Anonymous Chat -->
+                        {% if not is_owner %}
+                        <a href="{% url 'start_thread' item.id %}" class="py-3 px-5 rounded-2xl bg-white border border-slate-300 text-slate-700 hover:text-cyan-700 hover:border-cyan-500 font-bold text-xs transition flex items-center gap-2">
+                            <i class="fas fa-comments text-cyan-600"></i> Safe Chat
+                        </a>
+                        {% endif %}
+
+                        <!-- AI Matches button -->
+                        <a href="{% url 'item_matches' item.id %}" class="py-3 px-4 rounded-2xl bg-cyan-50 text-cyan-800 hover:bg-cyan-100 font-bold text-xs transition flex items-center gap-1.5">
+                            <i class="fas fa-brain text-cyan-600"></i> View AI Matches ({{ matches.count }})
+                        </a>
+
+                        <!-- Owner Status Controls -->
+                        {% if is_owner or is_staff %}
+                            {% if item.status != 'recovered' %}
+                            <a href="{% url 'update_item_status' item.id 'recovered' %}" onclick="return confirm('Mark this item as successfully recovered and close report?')" class="py-3 px-4 rounded-2xl bg-emerald-600 text-white font-bold text-xs hover:bg-emerald-700 transition flex items-center gap-1.5">
+                                <i class="fas fa-check"></i> Mark Recovered
+                            </a>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Claim Review Section for Staff & Owner (Feature 7) -->
+    {% if claims %}
+    <div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-4">
+        <div class="flex items-center justify-between">
+            <h3 class="font-bold text-base text-slate-900 flex items-center gap-2">
+                <i class="fas fa-user-check text-cyan-600"></i> Ownership Claims Submitted ({{ claims.count }})
+            </h3>
+            <span class="text-xs text-slate-400">SecretProof Verification Management</span>
+        </div>
+
+        <div class="space-y-4">
+            {% for c in claims %}
+            <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+                <div class="flex items-start justify-between">
+                    <div>
+                        <span class="text-xs font-bold text-slate-800">Claimant: {{ c.claimant.username }}</span>
+                        <span class="text-xs text-slate-400 ml-2">&bull; Submitted {{ c.created_at|date:"M d, Y" }}</span>
+                    </div>
+                    <span class="px-2.5 py-0.5 rounded-full text-xs font-bold
+                        {% if c.status == 'approved' %}bg-emerald-100 text-emerald-800
+                        {% elif c.status == 'rejected' %}bg-rose-100 text-rose-800
+                        {% else %}bg-amber-100 text-amber-800{% endif %}">
+                        {{ c.get_status_display }}
+                    </span>
+                </div>
+
+                <div class="bg-white p-3.5 rounded-xl border border-slate-200 text-xs text-slate-700">
+                    <span class="font-bold text-slate-900 block mb-1">Claimant's Secret Proof:</span>
+                    <p class="whitespace-pre-line">{{ c.claimant_secret_proof }}</p>
+                    {% if c.proof_document %}
+                    <div class="mt-2 pt-2 border-t border-slate-100">
+                        <a href="{{ c.proof_document.url }}" target="_blank" class="text-cyan-600 hover:underline font-semibold flex items-center gap-1">
+                            <i class="fas fa-paperclip"></i> View Attached Proof Document / Receipt
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Verification Action Buttons -->
+                {% if is_staff or is_owner %}
+                    {% if c.status == 'pending' %}
+                    <div class="flex items-center gap-2 pt-1">
+                        <a href="{% url 'review_claim' c.id 'approve' %}" onclick="return confirm('Approve ownership proof for this claimant?')" class="px-4 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold hover:bg-emerald-700 transition">
+                            <i class="fas fa-check mr-1"></i> Approve Ownership
+                        </a>
+                        <a href="{% url 'review_claim' c.id 'reject' %}" onclick="return confirm('Reject this claim?')" class="px-4 py-2 bg-rose-50 text-rose-700 border border-rose-200 rounded-xl text-xs font-bold hover:bg-rose-100 transition">
+                            <i class="fas fa-times mr-1"></i> Reject
+                        </a>
+                    </div>
+                    {% endif %}
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Top AI Matches for this item (Feature 3) -->
+    {% if matches %}
+    <div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-4">
+        <div class="flex items-center justify-between">
+            <h3 class="font-bold text-base text-slate-900 flex items-center gap-2">
+                <i class="fas fa-brain text-cyan-600"></i> AI Top Suggested Matches
+            </h3>
+            <a href="{% url 'item_matches' item.id %}" class="text-xs font-semibold text-cyan-600 hover:underline">
+                View Full Analysis &rarr;
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {% for m in matches %}
+            {% if item.report_type == 'lost' %}
+                <a href="{% url 'item_detail' m.found_item.id %}" class="p-4 rounded-2xl bg-cyan-50/40 border border-cyan-200 hover:border-cyan-500 hover:shadow-sm transition block">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-cyan-600 text-white">
+                            {{ m.similarity_score }}% Match
+                        </span>
+                        <span class="text-[11px] text-slate-400">{{ m.found_item.incident_date }}</span>
+                    </div>
+                    <h4 class="font-bold text-sm text-slate-900 line-clamp-1">{{ m.found_item.title }}</h4>
+                    <p class="text-xs text-slate-500 line-clamp-1 mt-1">{{ m.found_item.safe_area_display }}</p>
+                </a>
+            {% else %}
+                <a href="{% url 'item_detail' m.lost_item.id %}" class="p-4 rounded-2xl bg-cyan-50/40 border border-cyan-200 hover:border-cyan-500 hover:shadow-sm transition block">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-cyan-600 text-white">
+                            {{ m.similarity_score }}% Match
+                        </span>
+                        <span class="text-[11px] text-slate-400">{{ m.lost_item.incident_date }}</span>
+                    </div>
+                    <h4 class="font-bold text-sm text-slate-900 line-clamp-1">{{ m.lost_item.title }}</h4>
+                    <p class="text-xs text-slate-500 line-clamp-1 mt-1">{{ m.lost_item.safe_area_display }}</p>
+                </a>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const lat = {{ item.latitude }};
+        const lng = {{ item.longitude }};
+        const isLost = "{{ item.report_type }}" === "lost";
+
+        const miniMap = L.map('item-mini-map').setView([lat, lng], 14);
+
+        L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+            maxZoom: 20,
+            attribution: 'Map data &copy; <a href="https://maps.google.com" target="_blank">Google Maps</a>'
+        }).addTo(miniMap);
+
+        // Approximate 150m privacy radius circle
+        L.circle([lat, lng], {
+            radius: 150,
+            fillColor: isLost ? '#e11d48' : '#0891b2',
+            color: isLost ? '#be123c' : '#0e7490',
+            weight: 2,
+            opacity: 0.8,
+            fillOpacity: 0.25
+        }).addTo(miniMap);
+
+        L.circleMarker([lat, lng], {
+            radius: 7,
+            fillColor: isLost ? '#e11d48' : '#0891b2',
+            color: '#ffffff',
+            weight: 2,
+            fillOpacity: 1
+        }).addTo(miniMap);
+    });
+</script>
+{% endblock %}
