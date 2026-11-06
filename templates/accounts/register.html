@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Account | TraceBack BD{% endblock %}
+
+{% block content %}
+<div class="min-h-[80vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-xl w-full bg-white p-8 rounded-3xl border border-slate-200 shadow-md space-y-6">
+        <div class="text-center">
+            <div class="w-12 h-12 rounded-2xl bg-cyan-100 text-cyan-700 flex items-center justify-center mx-auto text-xl mb-3 shadow-xs">
+                <i class="fas fa-user-plus"></i>
+            </div>
+            <h2 class="text-2xl font-extrabold text-slate-900">Join TraceBack BD Network</h2>
+            <p class="text-xs text-slate-500 mt-1">Register to file reports, track status, and coordinate recovery</p>
+        </div>
+
+        <form method="POST" class="space-y-4">
+            {% csrf_token %}
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Username *</label>
+                    <input type="text" name="username" required class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 transition">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Email Address *</label>
+                    <input type="email" name="email" required class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 transition">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">User Role *</label>
+                    <select name="role" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 transition">
+                        <option value="student" selected>Student / Campus Member</option>
+                        <option value="general">General User (Public Citizen)</option>
+                        <option value="staff">Institutional Desk Staff</option>
+                        <option value="transport">Transport Authority Officer</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Emergency Phone</label>
+                    <input type="text" name="phone" placeholder="e.g. 01700-000000 (Private)" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 transition">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Institution / Organization</label>
+                    <input type="text" name="institution_name" placeholder="e.g. Daffodil Int'l University (DIU)" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 transition">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Student / Employee Badge ID</label>
+                    <input type="text" name="student_id_or_badge" placeholder="e.g. 211-15-4321" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 transition">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Password *</label>
+                    <input type="password" name="password1" required class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 transition">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Confirm Password *</label>
+                    <input type="password" name="password2" required class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 transition">
+                </div>
+            </div>
+
+            <button type="submit" class="w-full py-2.5 px-4 rounded-xl bg-cyan-600 text-white font-bold text-sm hover:bg-cyan-700 transition shadow-md shadow-cyan-600/30 flex items-center justify-center gap-2 mt-2">
+                <i class="fas fa-check-circle"></i> Create My Account
+            </button>
+        </form>
+
+        <div class="text-center pt-2 border-t border-slate-100">
+            <p class="text-xs text-slate-500">
+                Already registered? 
+                <a href="{% url 'login' %}" class="font-bold text-cyan-600 hover:text-cyan-800">Sign in here</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
