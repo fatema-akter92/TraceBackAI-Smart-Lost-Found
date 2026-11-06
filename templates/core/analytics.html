@@ -1,0 +1,218 @@
+{% extends 'base.html' %}
+
+{% block title %}Recovery Analytics Dashboard | TraceBack BD{% endblock %}
+
+{% block extra_head %}
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+            <div class="flex items-center gap-2">
+                <span class="px-2.5 py-0.5 rounded-full bg-cyan-100 text-cyan-800 text-xs font-semibold">Feature 13</span>
+                <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900">Recovery Analytics Dashboard</h1>
+            </div>
+            <p class="text-xs sm:text-sm text-slate-500 mt-1">
+                Real-time metrics, AI matching efficiency, and recovery performance across partner institutions.
+            </p>
+        </div>
+        <div class="flex items-center gap-2">
+            <button onclick="window.print()" class="px-3.5 py-2 text-xs font-semibold bg-white border border-slate-300 text-slate-700 rounded-xl hover:bg-slate-50 transition flex items-center gap-1.5 shadow-xs">
+                <i class="fas fa-print text-cyan-600"></i> Export Report
+            </button>
+        </div>
+    </div>
+
+    <!-- Summary KPI Cards -->
+    <div class="grid grid-cols-2 lg:grid-cols-6 gap-4">
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Lost</div>
+            <div class="text-2xl font-extrabold text-rose-600 mt-1">{{ total_lost }}</div>
+            <div class="text-[11px] text-slate-400 mt-1"><i class="fas fa-file-alt mr-1"></i> Open Seeker Cases</div>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Found</div>
+            <div class="text-2xl font-extrabold text-cyan-600 mt-1">{{ total_found }}</div>
+            <div class="text-[11px] text-slate-400 mt-1"><i class="fas fa-hand-holding mr-1"></i> Citizens &amp; Staff</div>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider">AI Matches</div>
+            <div class="text-2xl font-extrabold text-cyan-700 mt-1">{{ total_matches }}</div>
+            <div class="text-[11px] text-cyan-600 mt-1"><i class="fas fa-brain mr-1"></i> Neural Comparison</div>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Recovered</div>
+            <div class="text-2xl font-extrabold text-emerald-600 mt-1">{{ total_recovered }}</div>
+            <div class="text-[11px] text-emerald-600 mt-1"><i class="fas fa-check-circle mr-1"></i> Successful Cases</div>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Recovery Rate</div>
+            <div class="text-2xl font-extrabold text-slate-900 mt-1">{{ recovery_rate }}%</div>
+            <div class="text-[11px] text-slate-400 mt-1">Resolution Ratio</div>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider">In Custody</div>
+            <div class="text-2xl font-extrabold text-teal-600 mt-1">{{ items_in_custody }}</div>
+            <div class="text-[11px] text-teal-600 mt-1"><i class="fas fa-shield-alt mr-1"></i> Stored in Desks</div>
+        </div>
+    </div>
+
+    <!-- Charts Row 1: Categories Breakdown & Status Doughnut -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Category Chart (2 Cols) -->
+        <div class="lg:col-span-2 bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h3 class="font-bold text-base text-slate-900">Category-Wise Recovery Statistics</h3>
+                    <p class="text-xs text-slate-400">Comparing Lost reports vs Found reports by category</p>
+                </div>
+            </div>
+            <div class="h-72">
+                <canvas id="categoryChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Status Doughnut Chart (1 Col) -->
+        <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between">
+            <div>
+                <h3 class="font-bold text-base text-slate-900">Pipeline Status Distribution</h3>
+                <p class="text-xs text-slate-400 mb-4">Current state of all active reports</p>
+                <div class="h-60 flex items-center justify-center">
+                    <canvas id="statusChart"></canvas>
+                </div>
+            </div>
+            <div class="border-t border-slate-100 pt-3 text-center">
+                <span class="text-xs font-semibold text-cyan-700">
+                    <i class="fas fa-clock mr-1"></i> {{ pending_verifications }} SecretProof claims pending review
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row 2: Area Breakdown -->
+    <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+        <div class="flex items-center justify-between mb-4">
+            <div>
+                <h3 class="font-bold text-base text-slate-900">Area-Wise Report Density</h3>
+                <p class="text-xs text-slate-400">Volume of reported lost &amp; found items by locality / campus zone</p>
+            </div>
+        </div>
+        <div class="h-64">
+            <canvas id="areaChart"></canvas>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    const catLabels = {{ category_labels_json|safe }};
+    const catLost = {{ category_lost_json|safe }};
+    const catFound = {{ category_found_json|safe }};
+    const catRecovered = {{ category_recovered_json|safe }};
+
+    const statusLabels = {{ status_labels_json|safe }};
+    const statusValues = {{ status_values_json|safe }};
+
+    const areaLabels = {{ area_labels_json|safe }};
+    const areaCounts = {{ area_counts_json|safe }};
+
+    // Category Chart
+    const ctxCat = document.getElementById('categoryChart').getContext('2d');
+    new Chart(ctxCat, {
+        type: 'bar',
+        data: {
+            labels: catLabels,
+            datasets: [
+                {
+                    label: 'Lost Reports',
+                    data: catLost,
+                    backgroundColor: '#fb7185',
+                    borderRadius: 6,
+                },
+                {
+                    label: 'Found Reports',
+                    data: catFound,
+                    backgroundColor: '#06b6d4',
+                    borderRadius: 6,
+                },
+                {
+                    label: 'Successfully Recovered',
+                    data: catRecovered,
+                    backgroundColor: '#10b981',
+                    borderRadius: 6,
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'top' }
+            },
+            scales: {
+                y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+
+    // Status Doughnut Chart
+    const ctxStatus = document.getElementById('statusChart').getContext('2d');
+    new Chart(ctxStatus, {
+        type: 'doughnut',
+        data: {
+            labels: statusLabels,
+            datasets: [{
+                data: statusValues,
+                backgroundColor: ['#f59e0b', '#0891b2', '#8b5cf6', '#10b981'],
+                borderWidth: 2,
+                borderColor: '#ffffff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom' }
+            },
+            cutout: '65%'
+        }
+    });
+
+    // Area Chart
+    const ctxArea = document.getElementById('areaChart').getContext('2d');
+    new Chart(ctxArea, {
+        type: 'bar',
+        data: {
+            labels: areaLabels,
+            datasets: [{
+                label: 'Reports Filed',
+                data: areaCounts,
+                backgroundColor: '#0891b2',
+                borderRadius: 8,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+</script>
+{% endblock %}
