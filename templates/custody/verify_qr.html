@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+
+{% block title %}Custody Passport | {{ item.tracking_code }}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+    
+    <!-- Custody Passport Card -->
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-md overflow-hidden">
+        
+        <!-- Top Status Banner -->
+        <div class="p-6 sm:p-8 bg-gradient-to-r from-cyan-800 to-cyan-600 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="space-y-1">
+                <span class="text-xs font-bold uppercase tracking-wider text-cyan-200">Official Custody Passport</span>
+                <h1 class="text-2xl sm:text-3xl font-extrabold">{{ item.title }}</h1>
+                <p class="text-xs text-cyan-100 font-mono">Code: {{ item.tracking_code }}</p>
+            </div>
+
+            <div class="text-left sm:text-right">
+                <span class="inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider
+                    {% if custody.current_status == 'returned' %}bg-emerald-500 text-white
+                    {% elif custody.current_status == 'owner_verified' %}bg-cyan-900 text-white
+                    {% else %}bg-white/20 text-white{% endif %}">
+                    {{ custody.get_current_status_display|default:item.get_status_display }}
+                </span>
+            </div>
+        </div>
+
+        <div class="p-6 sm:p-8 grid grid-cols-1 md:grid-cols-12 gap-8">
+            <!-- Left: QR Code & Desk Badge (4 Cols) -->
+            <div class="md:col-span-4 flex flex-col items-center text-center space-y-4">
+                <div class="p-4 bg-white rounded-2xl border-2 border-cyan-400 shadow-sm inline-block">
+                    {% if custody and custody.qr_image %}
+                    <img src="{{ custody.qr_image.url }}" alt="QR Code" class="w-48 h-48 object-contain">
+                    {% else %}
+                    <div class="w-48 h-48 bg-slate-100 flex items-center justify-center text-slate-400 text-xs font-bold">
+                        QR Tag Pending
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="text-xs text-slate-500 space-y-1">
+                    <p class="font-mono font-bold text-slate-800">{{ item.tracking_code }}</p>
+                    <p class="text-[11px] text-slate-400">Scan at desk for custody verification</p>
+                </div>
+
+                {% if custody and custody.current_status != 'returned' and user.is_desk_staff %}
+                <a href="{% url 'execute_handover' custody.id %}" class="w-full py-2.5 px-4 bg-emerald-600 text-white rounded-xl text-xs font-bold hover:bg-emerald-700 transition shadow-sm flex items-center justify-center gap-1.5">
+                    <i class="fas fa-handshake"></i> Execute Official Handover
+                </a>
+                {% endif %}
+            </div>
+
+            <!-- Right: Item & Custody Parameters (8 Cols) -->
+            <div class="md:col-span-8 space-y-6">
+                <!-- Parameters Grid -->
+                <div class="grid grid-cols-2 gap-4 text-xs bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                    <div>
+                        <span class="text-slate-400 block text-[11px]">Category</span>
+                        <span class="font-bold text-slate-800">{{ item.category.name }}</span>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block text-[11px]">Primary Color / Brand</span>
+                        <span class="font-bold text-slate-800">{{ item.primary_color|default:"-" }} / {{ item.brand|default:"-" }}</span>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block text-[11px]">Managing Desk</span>
+                        <span class="font-bold text-cyan-700">{{ custody.desk.name|default:"Not Deposited at Desk" }}</span>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block text-[11px]">Storage Locker / Shelf</span>
+                        <span class="font-bold text-slate-800">{{ custody.storage_bin_or_shelf|default:"General Holding Area" }}</span>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block text-[11px]">Received By Staff</span>
+                        <span class="font-bold text-slate-800">{{ custody.received_by.username|default:"Online Citizen Report" }}</span>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block text-[11px]">Deposit Date</span>
+                        <span class="font-bold text-slate-800">{{ custody.created_at|date:"M d, Y H:i"|default:item.created_at|date:"M d, Y" }}</span>
+                    </div>
+                </div>
+
+                <!-- Custody Chain History Log (Section 8 of PDF) -->
+                <div>
+                    <h3 class="font-bold text-xs uppercase tracking-wider text-slate-700 mb-3 flex items-center gap-1.5">
+                        <i class="fas fa-history text-cyan-600"></i> Chain of Custody History
+                    </h3>
+
+                    <div class="space-y-3">
+                        {% for log in logs %}
+                        <div class="flex items-start gap-3 text-xs p-3 rounded-xl bg-white border border-slate-200">
+                            <span class="w-6 h-6 rounded-full bg-cyan-100 text-cyan-700 flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5">
+                                <i class="fas fa-check"></i>
+                            </span>
+                            <div class="space-y-0.5 flex-1">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-bold text-slate-900">{{ log.action }}</span>
+                                    <span class="text-[10px] text-slate-400">{{ log.timestamp|date:"M d, Y H:i" }}</span>
+                                </div>
+                                <p class="text-slate-500 text-[11px]">{{ log.notes }}</p>
+                                {% if log.actor %}
+                                <span class="text-[10px] text-cyan-600 font-semibold">Handled by: {{ log.actor.username }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p class="text-xs text-slate-400 italic">No custody audit logs recorded yet.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs">
+                    <a href="{% url 'item_detail' item.id %}" class="text-cyan-700 hover:underline font-semibold">
+                        &larr; View Item Public Page
+                    </a>
+                    {% if custody and custody.handover_date %}
+                    <a href="{% url 'handover_receipt' custody.id %}" class="font-bold text-emerald-700 flex items-center gap-1">
+                        <i class="fas fa-receipt"></i> View Handover Receipt
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
