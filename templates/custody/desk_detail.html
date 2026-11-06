@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ desk.name }} | TraceBack BD Custody{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+    <!-- Desk Info Card -->
+    <div class="bg-gradient-to-r from-cyan-900 via-cyan-800 to-cyan-700 text-white rounded-3xl p-6 sm:p-8 shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div class="space-y-2">
+            <span class="px-3 py-1 rounded-full bg-white/20 text-cyan-100 text-xs font-semibold">
+                {{ desk.get_desk_type_display }}
+            </span>
+            <h1 class="text-2xl sm:text-3xl font-extrabold">{{ desk.name }}</h1>
+            <p class="text-xs text-cyan-200">{{ desk.organization }} &bull; {{ desk.location_details }}</p>
+            <p class="text-xs text-cyan-300"><i class="fas fa-phone mr-1"></i> Helpline: {{ desk.contact_phone }}</p>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <a href="{% url 'qr_scanner' %}" class="px-4 py-2.5 bg-white text-cyan-800 font-bold text-xs rounded-xl hover:bg-cyan-50 transition shadow-sm flex items-center gap-2">
+                <i class="fas fa-qrcode"></i> Scan QR Pass
+            </a>
+        </div>
+    </div>
+
+    <!-- Items in Custody Table -->
+    <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm space-y-4">
+        <div class="flex items-center justify-between">
+            <h3 class="font-bold text-base text-slate-900">Current Items in Desk Custody ({{ custody_items.count }})</h3>
+            <span class="text-xs text-slate-400">Physical locker registry</span>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-xs text-left text-slate-600">
+                <thead class="text-[11px] uppercase bg-slate-50 text-slate-400 border-b border-slate-100">
+                    <tr>
+                        <th class="py-3 px-4">Tracking Code</th>
+                        <th class="py-3 px-4">Item Name</th>
+                        <th class="py-3 px-4">Storage Locker / Bin</th>
+                        <th class="py-3 px-4">Custody Status</th>
+                        <th class="py-3 px-4">Intake Date</th>
+                        <th class="py-3 px-4">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    {% for c in custody_items %}
+                    <tr class="hover:bg-slate-50/50">
+                        <td class="py-3 px-4 font-mono font-bold text-cyan-700">{{ c.item.tracking_code }}</td>
+                        <td class="py-3 px-4 font-bold text-slate-800">{{ c.item.title }}</td>
+                        <td class="py-3 px-4">{{ c.storage_bin_or_shelf|default:"General Depot" }}</td>
+                        <td class="py-3 px-4">
+                            <span class="px-2 py-0.5 rounded-full font-bold
+                                {% if c.current_status == 'returned' %}bg-emerald-100 text-emerald-800
+                                {% elif c.current_status == 'owner_verified' %}bg-cyan-100 text-cyan-800
+                                {% else %}bg-slate-100 text-slate-700{% endif %}">
+                                {{ c.get_current_status_display }}
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 text-slate-400">{{ c.created_at|date:"M d, Y" }}</td>
+                        <td class="py-3 px-4">
+                            <a href="{% url 'verify_item_qr' c.item.tracking_code %}" class="px-3 py-1 bg-cyan-50 text-cyan-700 hover:bg-cyan-600 hover:text-white rounded-lg font-bold transition">
+                                QR Custody Pass &rarr;
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="py-8 text-center text-slate-400 italic">No items currently stored at this desk.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
