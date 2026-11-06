@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}Execute Handover | TraceBack BD{% endblock %}
+
+{% block content %}
+<div class="max-w-xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-md p-6 sm:p-8 space-y-6">
+        <div class="text-center space-y-1 pb-4 border-b border-slate-100">
+            <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto text-xl shadow-xs">
+                <i class="fas fa-handshake"></i>
+            </div>
+            <span class="text-xs font-bold text-emerald-600 uppercase tracking-wider">Official Handover</span>
+            <h1 class="text-xl font-extrabold text-slate-900">Execute Custody Handover</h1>
+            <p class="text-xs text-slate-500">Item: <strong class="text-slate-800">{{ custody.item.title }}</strong></p>
+        </div>
+
+        <form method="POST" class="space-y-4">
+            {% csrf_token %}
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                    Verified Owner Full Name *
+                </label>
+                <input type="text" name="owner_name" required placeholder="Full legal name of the person receiving the item" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:border-cyan-500">
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                    ID Verification Document *
+                </label>
+                <input type="text" name="owner_id_proof" required placeholder="Student ID number / NID number / Driving License" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:border-cyan-500">
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                    Officer Verification Remarks
+                </label>
+                <textarea name="remarks" rows="3" placeholder="SecretProof cross-checked. Physical signature collected on receipt." class="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:border-cyan-500"></textarea>
+            </div>
+
+            <button type="submit" class="w-full py-3 px-4 bg-emerald-600 text-white font-bold text-xs rounded-xl hover:bg-emerald-700 transition shadow-sm">
+                Confirm Handover &amp; Issue Recovery Certificate
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
